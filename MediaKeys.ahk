@@ -108,6 +108,11 @@ Menu Case, Add, &Reverse, CCase
 
 
 ; Retrieves saved clipboard information since when this script last ran
+; Set the following to 1 before changing the clipboard to
+; make multi-clipboard ignore the change.  This is useful when
+; this script is include inside another script that messes
+; with the clipboard.
+IgnoreClipboardChange := 1
 Loop C:\tmp\ahkCliboardHistory\clipvar*.txt
 {
   clipindex += 1
@@ -117,6 +122,7 @@ Loop C:\tmp\ahkCliboardHistory\clipvar*.txt
 FileRead HiddenWins, C:\tmp\ahkCliboardHistory\windowHist.txt
 FileDelete C:\tmp\ahkCliboardHistory\windowHist.txt
 maxindex := clipindex
+IgnoreClipboardChange := 0
 OnExit ExitSub
 Return ;end of auto execute
 
@@ -177,13 +183,9 @@ Progress, 2:Off
 return
 ;end visuals
 
-
-
-
-return ;end of auto execute?
 AppsKey::
-;Keep AppsKey working (mostly) normally.
-Send {AppsKey}
+  ;Keep AppsKey working (mostly) normally.
+  Send {AppsKey}
 Return
 
 ;beggining of clipboard
@@ -191,40 +193,48 @@ Return
 ^+NumpadClear::
 ^+Numpad5::
 ^+5::
-tooltip clipboard history cleared
-SetTimer, ReSetToolTip, 1000
-loop maxindex
-{
-	clipvar%A_Index% :=
-}
-maxindex = 0
-clipindex = 0
+  tooltip clipboard history cleared
+  SetTimer, ReSetToolTip, 1000
+  loop maxindex
+  {
+    clipvar%A_Index% :=
+  }
+  maxindex = 0
+  clipindex = 0
 Return
 
 ; Scroll up and down through clipboard history
 ^+X::
-if clipindex > 1
-{
-  clipindex -= 1
-}
-thisclip := clipvar%clipindex%
-clipboard := thisclip
-tooltip %clipindex% - %clipboard%
-SetTimer, ReSetToolTip, 1000
+  IgnoreClipboardChange := 1
+  if (clipindex > 0)
+  {
+    clipindex -= 1
+    thisclip := clipvar%clipindex%
+    clipboard := thisclip
+    sleep 50
+    tooltip %clipindex% - %clipboard%
+    SetTimer, ReSetToolTip, 1000
+  }
+  IgnoreClipboardChange := 0
 Return
+
 ^+C::
-if clipindex < %maxindex%
-{
-  clipindex += 1
-}
-thisclip := clipvar%clipindex%
-clipboard := thisclip
-tooltip %clipindex% - %clipboard%
-SetTimer, ReSetToolTip, 1000
+  IgnoreClipboardChange := 1
+  if (clipindex < maxindex)
+  {
+    clipindex += 1
+    thisclip := clipvar%clipindex%
+    clipboard := thisclip
+    sleep 50
+    tooltip %clipindex% - %clipboard%
+    SetTimer, ReSetToolTip, 1000
+  }
+  IgnoreClipboardChange := 0
 Return
 
 ;Paste And move Forward one
 ^+V::
+  IgnoreClipboardChange := 1
   Send ^v
   if clipindex < %maxindex%
   {
@@ -232,6 +242,7 @@ Return
   }
   thisclip := clipvar%clipindex%
   clipboard := thisclip
+  IgnoreClipboardChange := 0
   tooltip %clipindex% - %clipboard%
   SetTimer, ReSetToolTip, 1000
   Sleep 200
@@ -260,6 +271,7 @@ return
 
 ;Paste And move Forward one
 ^+R::
+  IgnoreClipboardChange := 1
   clipboard = %clipboard%
   Clipboard := regexreplace(Clipboard, "\r\n?|\n\r?", "`n")
   Send, {Shift Up}{Ctrl Up}{V Up}
@@ -271,6 +283,7 @@ return
   }
   thisclip := clipvar%clipindex%
   clipboard := thisclip
+  IgnoreClipboardChange := 0
   tooltip %clipindex% - %clipboard%
   SetTimer, ReSetToolTip, 1000
   sleep repeat
@@ -278,8 +291,12 @@ Return
 ;https://autohotkey.com/board/topic/58230-how-to-slow-down-send-commands/
 ;send event type slow
 
+;  ^C::
+;  ^X::
+;  return
+
 OnClipboardChange:
-If !GetKeyState("Shift","p")
+If (IgnoreClipboardChange = 0)
 {
 	sleep 25
 	clipindex += 1
@@ -806,6 +823,7 @@ Return
 ; Copies the selected text to a variable while preserving the clipboard.
 GetText(ByRef MyText = "")
 {
+  IgnoreClipboardChange := 1
    SavedClip := ClipboardAll
    Clipboard =
    Send ^c
@@ -818,12 +836,14 @@ GetText(ByRef MyText = "")
    }
    MyText := Clipboard
    Clipboard := SavedClip
+   IgnoreClipboardChange := 0
    Return MyText
 }
 
 ; Pastes text from a variable while preserving the clipboard.
 PutText(MyText)
 {
+  IgnoreClipboardChange := 1
    SavedClip := ClipboardAll 
    Clipboard =              ; For better compatability
    Sleep 20                 ; with Clipboard History
@@ -831,6 +851,7 @@ PutText(MyText)
    Send ^v
    Sleep 100
    Clipboard := SavedClip
+   IgnoreClipboardChange := 0
    Return
 }
 
@@ -843,18 +864,6 @@ SafeInput(Title, Prompt, Default = "")
    WinActivate ahk_id %ActiveWin%
    Return OutPut
 }
-
-;This makes sure sure the same window stays active after showing the InputBox.
-;Otherwise you might get the text pasted into another window unexpectedly.
-SafeInput2(Title, Prompt, Default = "")
-{
-   ActiveWin := WinExist("A")
-   InputBox OutPut1, %Title%, %Prompt%,,, 120,,,,, %Default%
-   InputBox OutPut2, %Title%, %Prompt%,,, 120,,,,, %Default%
-   WinActivate ahk_id %ActiveWin%
-   Return OutPut1, OutPut2
-}
-
 
 ;This checks if a window is, in fact a window.
 ;As opposed to the desktop or a menu, etc.
