@@ -225,59 +225,58 @@ Return
 
 ;Paste And move Forward one
 ^+V::
-;Clipboard := regexreplace(ClipboardAll, "\r\n?|\n\r?", "`n")
-;Send, {Shift Up}{Ctrl Down} {V} {Ctrl Up}{Shift Down};%clipboard%
-Send ^v
-if clipindex < %maxindex%
-{
-  clipindex += 1
-}
-thisclip := clipvar%clipindex%
-clipboard := thisclip
-tooltip %clipindex% - %clipboard%
-SetTimer, ReSetToolTip, 1000
-Sleep 200
+  Send ^v
+  if clipindex < %maxindex%
+  {
+    clipindex += 1
+  }
+  thisclip := clipvar%clipindex%
+  clipboard := thisclip
+  tooltip %clipindex% - %clipboard%
+  SetTimer, ReSetToolTip, 1000
+  Sleep 200
 Return
+
 ^+1::
-repeat:=50
-tooltip Repeat Timer Changed - %repeat%
-SetTimer, ReSetToolTip, % repeat
+  repeat:=50
+  tooltip Repeat Timer Changed - %repeat%
+  SetTimer, ReSetToolTip, % repeat
 return
 ^+2::
-repeat:= repeat - 25
-tooltip Repeat Timer Changed - %repeat%
-SetTimer, ReSetToolTip, % repeat
+  repeat:= repeat - 25
+  tooltip Repeat Timer Changed - %repeat%
+  SetTimer, ReSetToolTip, % repeat
 return
 ^+3::
-repeat:=repeat +50
-tooltip Repeat Timer Changed - %repeat%
-SetTimer, ReSetToolTip, % repeat
+  repeat:=repeat +50
+  tooltip Repeat Timer Changed - %repeat%
+  SetTimer, ReSetToolTip, % repeat
 return
 ^+4::
-repeat:=200
-tooltip Repeat Timer Changed - %repeat%
-SetTimer, ReSetToolTip,% repeat
+  repeat:=200
+  tooltip Repeat Timer Changed - %repeat%
+  SetTimer, ReSetToolTip,% repeat
 return
 
 ;Paste And move Forward one
 ^+R::
-clipboard = %clipboard%
-Clipboard := regexreplace(Clipboard, "\r\n?|\n\r?", "`n")
-Send, {Shift Up}{Ctrl Up}{V Up}
-Send, %clipboard%
-Send, {Shift Down}{Ctrl Down}{V Up}
-if clipindex < %maxindex%
-{
-  clipindex += 1
-}
-thisclip := clipvar%clipindex%
-clipboard := thisclip
-tooltip %clipindex% - %clipboard%
-SetTimer, ReSetToolTip, 1000
-sleep repeat
+  clipboard = %clipboard%
+  Clipboard := regexreplace(Clipboard, "\r\n?|\n\r?", "`n")
+  Send, {Shift Up}{Ctrl Up}{V Up}
+  Send, %clipboard%
+  Send, {Shift Down}{Ctrl Down}{V Up}
+  if clipindex < %maxindex%
+  {
+    clipindex += 1
+  }
+  thisclip := clipvar%clipindex%
+  clipboard := thisclip
+  tooltip %clipindex% - %clipboard%
+  SetTimer, ReSetToolTip, 1000
+  sleep repeat
 Return
 ;https://autohotkey.com/board/topic/58230-how-to-slow-down-send-commands/
-;E send event type slow
+;send event type slow
 
 OnClipboardChange:
 If !GetKeyState("Shift","p")
@@ -296,22 +295,6 @@ If !GetKeyState("Shift","p")
 }
 return
 
-; Add clipboard contents to the stack when you copy or paste using the keyboard
-;~^x::
-;~^c::
-;ClipWait 0.5
-;sleep 50
-;clipindex += 1
-;clipvar%clipindex% := clipboardAll
-;thisclip := clipvar%clipindex%
-;tooltip %clipindex% - %thisclip%
-;SetTimer, ReSetToolTip, 1000
-;if clipindex > %maxindex%
-;{
-;  maxindex := clipindex
-;}
-;Return
-
 ; Clear the ToolTip
 ReSetToolTip:
     ToolTip
@@ -322,14 +305,11 @@ return
 ^+Z::
 GetText(TempText)
 TempText2 := ""
-;MsgBox, %TempText%
 clipindex := maxindex
 Loop, parse, TempText, `n, `r  ; Specifying `n prior to `r allows both Windows and Unix files to be parsed.
 {
 	clipindex += 1
 	clipvar%clipindex% := A_LoopField
-    ;MsgBox, 4, , Line number %A_Index% is %A_LoopField%.`n`nContinue?
-    ;IfMsgBox, No, break
 }
 lineCount:= clipindex-maxindex
 	tooltip %clipindex%(total) - %lineCount% lines have been Appened to Clipboard History `r`n %TempText%
@@ -339,25 +319,6 @@ lineCount:= clipindex-maxindex
 Return
 
 
-;^!Z::
-;testt++
-;Send,%testt%
-;If (testt = 6)
-;{
-;    testt := 0
-;    Send, `n
-;}
-;Else
-;{
-;	Send, `t
-;}	
-;return
-
-
-
-
-;Appskey & Up::Send {Volume_Up 1}
-;Appskey & Down::Send {Volume_Down 1}
 Appskey & left::
 If GetKeyState("Shift","p")
  MouseMove, -1, 0, 0, R
@@ -375,66 +336,62 @@ Return
 Appskey & space::
 Send {Media_Play_Pause}
 Return
+
 ;AppsKey & Shift & Left::MouseMove, -1, 0, 0, R
 ;AppsKey & Shift & Right::MouseMove, 1, 0, 0, R
 ;AppsKey & Shift & Up::MouseMove, 0, -1, 0, R
 ;AppsKey & Shift & Down::MouseMove, 0, 1, 0, R
 
-;Appskey & RCtrl::
-;^!.::
-;MsgBox, 0, , %A_ScreenWidth%!
-;MsgBox, 0, , % A_ScreenWidth - vol_Width - vol_Width
-;return
 
 
 Appskey & `::
 ;^!.::
 MsgBox, 0, ,
 (
-Guide, appskey + key=
-`` : This help menu.
-a : Always on top on
-A : Always on top off
-b : Powermanager switch off display
-t : Make 50`% transparent
-T : Make fully Visible
-v : Paste clipboard as plain text
-w : Wrap tect at input value(70)
-x : Power state menu
-/ : RegEx replace
-, : input tag and attributes. HTML Format
-[ : input tag and attributes. BB format
-. : Hide window
-S. : reveal windows hidden
-F4: Force close window
-r : Reload Script.
+  Guide, appskey + key=
+  `` : This help menu.
+  a : Always on top on
+  A : Always on top off
+  b : Powermanager switch off display
+  t : Make 50`% transparent
+  T : Make fully Visible
+  v : Paste clipboard as plain text
+  w : Wrap tect at input value(70)
+  x : Power state menu
+  / : RegEx replace
+  , : input tag and attributes. HTML Format
+  [ : input tag and attributes. BB format
+  . : Hide window
+  S. : reveal windows hidden
+  F4: Force close window
+  r : Reload Script.
 
-LA+LS+tilde: restore windows
+  LA+LS+tilde: restore windows
 
-LM: allows click draging of window without clicking on tile bar
+  LM: allows click draging of window without clicking on tile bar
 
-UP    : Volume up.
-DOWN  : Volume Down.
-RIGHT : Next Track.
-LEFT  : Previous Track.
-SPACE : Play/Pause.
+  UP    : Volume up.
+  DOWN  : Volume Down.
+  RIGHT : Next Track.
+  LEFT  : Previous Track.
+  SPACE : Play/Pause.
 
-ClipBoard Stuff
-Ctrl+C, Ctrl+X             : Add to clipboard history
-Ctrl+Shift+C, Ctrl+Shift+X : Move though Clipboard History
-Ctrl+Shift+5               : Clear history
-Ctrl+Shift+Z               : Load highlighted text into clipboard history line by line
+  ClipBoard Stuff
+  Ctrl+C, Ctrl+X             : Add to clipboard history
+  Ctrl+Shift+C, Ctrl+Shift+X : Move though Clipboard History
+  Ctrl+Shift+5               : Clear history
+  Ctrl+Shift+Z               : Load highlighted text into clipboard history line by line
 
-Ctrl+Shift+V : paste clipboard and go forward one
-Ctrl+Shift+R : paste clipboard(raw? see next link) and go forward one
-https://autohotkey.com/docs/commands/Send.htm
+  Ctrl+Shift+V : paste clipboard and go forward one
+  Ctrl+Shift+R : paste clipboard(raw? see next link) and go forward one
+  https://autohotkey.com/docs/commands/Send.htm
 
-#	Win (Windows logo key).
-!	Alt    < Use the left key of the pair.
-^	Control    > Use the right key of the pair.
-+	Shift   & between two keys to combine them
+  #	Win (Windows logo key).
+  !	Alt    < Use the left key of the pair.
+  ^	Control    > Use the right key of the pair.
+  +	Shift   & between two keys to combine them
 
-Also See https://github.com/Darrick255/AppsKeyAHK
+  Also See https://github.com/Darrick255/AppsKeyAHK
 )
 ;MsgBox, 0, , % A_ScreenWidth - vol_Width - vol_Width
 return
@@ -908,65 +865,6 @@ IsWindow(hwnd)
    ;WS_CAPTION AND !WS_POPUP(for tooltips etc) 
 }
 
-CustomMsgBox(Title,Message,Font="",FontOptions="",WindowColor="")
-{
-	Gui,66:Destroy
-	Gui,66:Color,%WindowColor%
-	
-	Gui,66:Font,%FontOptions%,%Font%
-	Gui,66:Add,Text,,%Message%
-	Gui,66:Font
-	
-	GuiControlGet,Text,66:Pos,Static1
-	
-	Gui,66:Add,Button,% "Default y+10 w75 g66OK xp+" (TextW / 2) - 38 ,OK
-	
-	Gui,66:-MinimizeBox
-	Gui,66:-MaximizeBox
-	
-	SoundPlay,*-1
-	Gui,66:Show,,%Title%
-	
-	Gui,66:+LastFound
-	WinWaitClose
-	Gui,66:Destroy
-	return
-	
-	66OK:
-	Gui,66:Destroy
-	return
-}
-
-Choice:=MsgBox_SelectString("Title","Select a string.","One|Two|Three|Four|Five")
-If !Choice
-	MsgBox,You didn't choose!
-Else
-	MsgBox,You chose "%Choice%".
-ExitApp
-
-
-MsgBox_SelectString(Title,Message,Strings)
-{
-	Gui,55:Add,Text,,%Message%
-	Gui,55:Add,ListBox,%Size%,%Strings%
-	GuiControlGet,Box,55:Pos,ListBox1
-	Gui,55:Add,Button,% "Default g55OK w75 y+10 xp+" (BoxW / 2) - 38,OK
-	
-	Gui,55:-MinimizeBox
-	Gui,55:-MaximizeBox
-	
-	Gui,55:Show,,%Title%
-	Gui,55:+LastFound
-	WinWaitClose
-	Gui,55:Destroy
-	return Result
-	
-	55OK:
-	GuiControlGet,Selected,55:,ListBox1
-	Result:=Selected
-	Gui,55:Destroy
-	return ;This won't end the function, just the g55OK thread.
-}
 ; Saves the current clipboard history to hard disk
 ExitSub:
 SetFormat, float, 06.0

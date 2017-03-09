@@ -79,3 +79,19 @@ LM: allows click draging of window without clicking on tile bar
 | <    | Use the left key of the pair.    |
 | >    | Use the right key of the pair.   |
 | &    | between two keys to combine them |
+
+
+Credits
+
+https://autohotkey.com/board/topic/25393-appskeys-a-suite-of-simple-utility-hotkeys/
+ManaUser For the original appskey script
+
+https://autohotkey.com/docs/scripts/EasyWindowDrag.htm
+for window draging code
+
+https://autohotkey.com/docs/scripts/VolumeOSD.htm
+Volume On-Screen-Display (OSD) -- by Rajat
+
+
+
+
