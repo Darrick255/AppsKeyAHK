@@ -206,7 +206,7 @@ Return
 ; Scroll up and down through clipboard history
 ^+X::
   IgnoreClipboardChange := 1
-  if (clipindex > 0)
+  if (clipindex > 1)
   {
     clipindex -= 1
     thisclip := clipvar%clipindex%
@@ -236,7 +236,7 @@ Return
 ^+V::
   IgnoreClipboardChange := 1
   Send ^v
-  if clipindex < %maxindex%
+  if (clipindex < maxindex)
   {
     clipindex += 1
   }
@@ -298,11 +298,10 @@ Return
 OnClipboardChange:
 If (IgnoreClipboardChange = 0)
 {
-	sleep 25
-	clipindex += 1
+	clipindex := maxindex
+  clipindex += 1
 	clipvar%clipindex% := clipboardAll
 	thisclip := clipvar%clipindex%
-	sleep 25
 	tooltip %clipindex% - %clipboard%
 	SetTimer, ReSetToolTip, 1000
 	if clipindex > %maxindex%
