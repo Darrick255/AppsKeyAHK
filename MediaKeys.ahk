@@ -295,7 +295,7 @@ Return
 ;  ^X::
 ;  return
 
-
+OnClipboardChange:
 If (%IgnoreClipboardChange% = 0)
 {
 	clipindex := maxindex
