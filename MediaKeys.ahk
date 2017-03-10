@@ -195,9 +195,9 @@ Return
 ^+5::
   tooltip clipboard history cleared
   SetTimer, ReSetToolTip, 1000
-  loop maxindex
+  loop, %maxindex%
   {
-    clipvar%A_Index% :=
+    clipvar%A_Index% := ""
   }
   maxindex = 0
   clipindex = 0
@@ -295,8 +295,8 @@ Return
 ;  ^X::
 ;  return
 
-OnClipboardChange:
-If (IgnoreClipboardChange = 0)
+
+If (%IgnoreClipboardChange% = 0)
 {
 	clipindex := maxindex
   clipindex += 1
@@ -823,6 +823,7 @@ Return
 GetText(ByRef MyText = "")
 {
   IgnoreClipboardChange := 1
+   sleep 2000
    SavedClip := ClipboardAll
    Clipboard =
    Send ^c
@@ -831,6 +832,7 @@ GetText(ByRef MyText = "")
    {
       Clipboard := SavedClip
       MyText =
+      IgnoreClipboardChange := 0
       Return
    }
    MyText := Clipboard
@@ -843,15 +845,16 @@ GetText(ByRef MyText = "")
 PutText(MyText)
 {
   IgnoreClipboardChange := 1
-   SavedClip := ClipboardAll 
-   Clipboard =              ; For better compatability
-   Sleep 20                 ; with Clipboard History
-   Clipboard := MyText
-   Send ^v
-   Sleep 100
-   Clipboard := SavedClip
-   IgnoreClipboardChange := 0
-   Return
+  sleep 50
+  SavedClip := ClipboardAll 
+  Clipboard =              ; For Better Compatability
+  Sleep 20                 ; with Clipboard History
+  Clipboard := MyText
+  Send ^v
+  Sleep 100
+  Clipboard := SavedClip
+  IgnoreClipboardChange := 0
+  Return
 }
 
 ;This makes sure sure the same window stays active after showing the InputBox.
