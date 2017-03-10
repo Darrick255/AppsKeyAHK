@@ -1,2 +1,4 @@
 #local editor history folder
 .history/
+.vscode/
+bin/
