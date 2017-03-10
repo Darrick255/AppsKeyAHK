@@ -112,7 +112,7 @@ Menu Case, Add, &Reverse, CCase
 ; make multi-clipboard ignore the change.  This is useful when
 ; this script is include inside another script that messes
 ; with the clipboard.
-IgnoreClipboardChange := 1
+IgnoreClipboardChange := True
 Loop C:\tmp\ahkCliboardHistory\clipvar*.txt
 {
   clipindex += 1
@@ -122,7 +122,7 @@ Loop C:\tmp\ahkCliboardHistory\clipvar*.txt
 FileRead HiddenWins, C:\tmp\ahkCliboardHistory\windowHist.txt
 FileDelete C:\tmp\ahkCliboardHistory\windowHist.txt
 maxindex := clipindex
-IgnoreClipboardChange := 0
+IgnoreClipboardChange := False
 OnExit ExitSub
 Return ;end of auto execute
 
@@ -205,7 +205,7 @@ Return
 
 ; Scroll up and down through clipboard history
 ^+X::
-  IgnoreClipboardChange := 1
+  IgnoreClipboardChange := True
   if (clipindex > 1)
   {
     clipindex -= 1
@@ -215,11 +215,11 @@ Return
     tooltip %clipindex% - %clipboard%
     SetTimer, ReSetToolTip, 1000
   }
-  IgnoreClipboardChange := 0
+  IgnoreClipboardChange := False
 Return
 
 ^+C::
-  IgnoreClipboardChange := 1
+  IgnoreClipboardChange := True
   if (clipindex < maxindex)
   {
     clipindex += 1
@@ -229,12 +229,12 @@ Return
     tooltip %clipindex% - %clipboard%
     SetTimer, ReSetToolTip, 1000
   }
-  IgnoreClipboardChange := 0
+  IgnoreClipboardChange := False
 Return
 
 ;Paste And move Forward one
 ^+V::
-  IgnoreClipboardChange := 1
+  IgnoreClipboardChange := True
   Send ^v
   if (clipindex < maxindex)
   {
@@ -242,7 +242,7 @@ Return
   }
   thisclip := clipvar%clipindex%
   clipboard := thisclip
-  IgnoreClipboardChange := 0
+  IgnoreClipboardChange := False
   tooltip %clipindex% - %clipboard%
   SetTimer, ReSetToolTip, 1000
   Sleep 200
@@ -271,7 +271,7 @@ return
 
 ;Paste And move Forward one
 ^+R::
-  IgnoreClipboardChange := 1
+  IgnoreClipboardChange := True
   clipboard = %clipboard%
   Clipboard := regexreplace(Clipboard, "\r\n?|\n\r?", "`n")
   Send, {Shift Up}{Ctrl Up}{V Up}
@@ -283,7 +283,7 @@ return
   }
   thisclip := clipvar%clipindex%
   clipboard := thisclip
-  IgnoreClipboardChange := 0
+  IgnoreClipboardChange := False
   tooltip %clipindex% - %clipboard%
   SetTimer, ReSetToolTip, 1000
   sleep repeat
@@ -296,7 +296,7 @@ Return
 ;  return
 
 OnClipboardChange:
-If (%IgnoreClipboardChange% = 0)
+If (!IgnoreClipboardChange)
 {
 	clipindex := maxindex
   clipindex += 1
@@ -822,8 +822,7 @@ Return
 ; Copies the selected text to a variable while preserving the clipboard.
 GetText(ByRef MyText = "")
 {
-  IgnoreClipboardChange := 1
-   sleep 2000
+   IgnoreClipboardChange := True
    SavedClip := ClipboardAll
    Clipboard =
    Send ^c
@@ -832,19 +831,19 @@ GetText(ByRef MyText = "")
    {
       Clipboard := SavedClip
       MyText =
-      IgnoreClipboardChange := 0
+      IgnoreClipboardChange := False
       Return
    }
    MyText := Clipboard
    Clipboard := SavedClip
-   IgnoreClipboardChange := 0
+   IgnoreClipboardChange := False
    Return MyText
 }
 
 ; Pastes text from a variable while preserving the clipboard.
 PutText(MyText)
 {
-  IgnoreClipboardChange := 1
+  IgnoreClipboardChange := True
   sleep 50
   SavedClip := ClipboardAll 
   Clipboard =              ; For Better Compatability
@@ -853,7 +852,7 @@ PutText(MyText)
   Send ^v
   Sleep 100
   Clipboard := SavedClip
-  IgnoreClipboardChange := 0
+  IgnoreClipboardChange := False
   Return
 }
 
