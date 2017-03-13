@@ -95,6 +95,8 @@ Volume On-Screen-Display (OSD) -- by Rajat
 https://autohotkey.com/board/topic/35566-rapidhotkey/
 HotKeyIt -- RapidHotkey()
 
+https://autohotkey.com/board/topic/76062-ahk-l-how-to-get-callstack-solution/
+fragman -- Get stack information 
 
 
 
