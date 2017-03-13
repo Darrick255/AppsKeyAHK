@@ -92,6 +92,9 @@ for window draging code
 https://autohotkey.com/docs/scripts/VolumeOSD.htm
 Volume On-Screen-Display (OSD) -- by Rajat
 
+https://autohotkey.com/board/topic/35566-rapidhotkey/
+HotKeyIt -- RapidHotkey()
+
 
 
 
