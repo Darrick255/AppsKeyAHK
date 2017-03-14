@@ -1,5 +1,6 @@
 #SingleInstance Force
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
+#NoTrayIcon
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetBatchLines, 10ms
@@ -417,6 +418,13 @@ MsgBox, 0, ,
 )
 ;MsgBox, 0, , % A_ScreenWidth - vol_Width - vol_Width
 return
+AppsKey & escape::
+	if (ShowTray)
+		Menu, Tray, NoIcon
+	else
+		Menu, Tray, Icon
+	ShowTray := !ShowTray
+	return
 
 AppsKey & F4::
 MyWin := WinExist("A")
