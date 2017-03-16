@@ -106,11 +106,13 @@ Menu Case, Add, &Reverse, CCase
 Menu Case, Add
 Menu Case, Add, &1 Count, CCase
 Menu Case, Add, &2 Word Wrap, CCase
-Menu Case, Add, &3 Remove Duplicates, CCase
+Menu Case, Add, &3 Compress Repeats, CCase
 Menu Case, Add, &4 CSV to Column, CCase
 Menu Case, Add, &5 Center Align, CCase
 Menu Case, Add, &6 Right Alighn, CCase
 Menu Case, Add, &7 Set Case, CCase
+Menu Case, Add, &8 Remove Duplicates, CCase
+
 ;******************************************************************************
 
 
@@ -861,11 +863,11 @@ if (IgnoreClipboardChange = True)
 		}
 		Else If (A_ThisMenuItemPos = 11)
 		{
-			;st_removeDuplicates(string [, delim])
+			;st_removeDuplicatesDelims(string [, delim])
 			option := "`n"
 			If GetKeyState("Shift","p")
 				option := SafeInput("Enter Delimiter", "String Delimiter:", option)
-			TempText := st_removeDuplicates(TempText, option)
+			TempText := st_removeDuplicatesDelims(TempText, option)
 			
 		}
 		Else If (A_ThisMenuItemPos = 12)
@@ -902,6 +904,13 @@ if (IgnoreClipboardChange = True)
 			if Getkeystate("shift","p")
 				Option := Safeinput("enter Case", "|    Use any cell as a name. CaSE-InSEnsitIVe.    |`n|----|-----|---------|------------|---------------|`n| 1  |  U  |   UP    |   UPPER    |   UPPERCASE   |`n|----|-----|---------|------------|---------------|`n| 2  |  l  |   low   |   lower    |   lowercase   |`n|----|-----|---------|------------|---------------|`n| 3  |  T  |  Title  |  TitleCase |               |`n|----|-----|---------|------------|---------------|`n| 4  |  S  |   Sen   |  Sentence  |  Sentencecase |`n|----|-----|---------|------------|---------------|`n| 5  |  i  |   iNV   |   iNVERT   |   iNVERTCASE  |`n|----|-----|---------|------------|---------------|`n| 6  |  r  |  rANd   |   rAnDOm   |   RAndoMcASE  |", Option,350)
 			Temptext := St_setcase(TempText, option)
+		}
+		Else if (A_thismenuitempos = 16)
+		{
+			option := "`n"
+			If GetKeyState("Shift","p")
+				option := SafeInput("Enter Delimiter", "String Delimiter:", option)
+			TempText := st_removeDuplicates(TempText, option)
 		}
 	}
 	PutText(TempText)
@@ -1120,7 +1129,7 @@ No functions rely on eachother. You may simply copy/paste the ones you want or n
 | st_flip(string)                                                    |
 | st_setCase(string [, case])                                        |+
 | st_contains(mixed [, lookFor*])                                    |
-| st_removeDuplicates(string [, delim])                              |+
+| st_removeDuplicatesDelims(string [, delim])                              |+
 | st_pad(string [, left, right, LCount, RCount])                     |
 |                                                                    |
 | st_group(string, size, separator [, perLine, startFromFront])      |
@@ -1281,13 +1290,29 @@ RemoveDuplicates
    string = The text or symbols you want to search for and remove.
    delim  = The string which defines a "line".
 
-example: st_removeDuplicates("aaa|bbb|||ccc||ddd", "|")
+example: st_removeDuplicatesDelims("aaa|bbb|||ccc||ddd", "|")
 output:  aaa|bbb|ccc|ddd
 */
-st_removeDuplicates(string, delim="`n")
+st_removeDuplicatesDelims(string, delim="`n")
 {
-   delim:=RegExReplace(delim, "([\\.*?+\[\{|\()^$])", "\$1")
-   Return RegExReplace(string, "(" delim ")+", "$1")
+	delim:=RegExReplace(delim, "([\\.*?+\[\{|\()^$])", "\$1")
+	Return RegExReplace(string, "(" delim ")+", "$1")
+}
+
+
+
+
+st_removeDuplicates(string, delim= "`n", exclude="`r")
+{
+Loop, Parse, string, %delim%, %exclude% ; a parsing loop operates on a copy of the list
+	If ( A_Index = 1 ) ; make the list contain only the first item
+		MyUniqueList := delim . A_LoopField . delim ; put delimiters in front and back
+	Else IfNotInString, MyUniqueList, %delim%%A_LoopField%%delim% ; check for a duplicate
+		MyUniqueList .= A_LoopField . delim ; the new item has a delimiter in front and back
+StringMid, MyUniqueList, MyUniqueList, 2, StrLen( MyUniqueList ) - 2 ; trim the first and last delimiters
+return rtrim(MyUniqueList,"`r`n")
+
+
 }
 
 /*
