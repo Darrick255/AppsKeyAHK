@@ -103,7 +103,14 @@ Menu Case, Add, &Sentence case, CCase
 Menu Case, Add
 Menu Case, Add, &Fix Linebreaks, CCase
 Menu Case, Add, &Reverse, CCase
-
+Menu Case, Add
+Menu Case, Add, &1 Count, CCase
+Menu Case, Add, &2 Word Wrap, CCase
+Menu Case, Add, &3 Remove Duplicates, CCase
+Menu Case, Add, &4 CSV to Column, CCase
+Menu Case, Add, &5 Center Align, CCase
+Menu Case, Add, &6 Right Alighn, CCase
+Menu Case, Add, &7 Set Case, CCase
 ;******************************************************************************
 
 
@@ -124,6 +131,7 @@ if(IgnoreClipboardChange = True)
 		FileRead clipvar%A_Index%, *c %A_LoopFileFullPath%
 		FileDelete %A_LoopFileFullPath%
 	}
+	sleep 100 ;why this fixes the double entry of the last value i have no idea.
 	FileRead HiddenWins, C:\tmp\ahkCliboardHistory\windowHist.txt
 	FileDelete C:\tmp\ahkCliboardHistory\windowHist.txt
 	maxindex := clipindex
@@ -806,31 +814,101 @@ Return LIST, DllCall( "SetLastError", "UInt",nTTL )
 
 ;******************************************************************************
 CCase:
-If (A_ThisMenuItemPos = 1)
-	 StringUpper, TempText, TempText
-Else If (A_ThisMenuItemPos = 2)
-	 StringLower, TempText, TempText
-Else If (A_ThisMenuItemPos = 3)
-	 StringLower, TempText, TempText, T
-Else If (A_ThisMenuItemPos = 4)
+IgnoreClipboardChange := True
+if (IgnoreClipboardChange = True)
 {
-	 StringLower, TempText, TempText
-	 TempText := RegExReplace(TempText, "((?:^|[.!?]\s+)[a-z])", "$u1")
-} ;Seperator, no 5
-Else If (A_ThisMenuItemPos = 6)
-{
-	 TempText := RegExReplace(TempText, "\R", "`r`n")
-}
-Else If (A_ThisMenuItemPos = 7)
-{
-	 Temp2 =
-	 StringReplace, TempText, TempText, `r`n, % Chr(29), All
-	 Loop Parse, TempText
-			Temp2 := A_LoopField . Temp2
-	 StringReplace, TempText, Temp2, % Chr(29), `r`n, All
-}
-PutText(TempText)
+	If (A_ThisMenuItemPos = 1)
+		StringUpper, TempText, TempText
+	Else If (A_ThisMenuItemPos = 2)
+		StringLower, TempText, TempText
+	Else If (A_ThisMenuItemPos = 3)
+		StringLower, TempText, TempText, T
+	Else If (A_ThisMenuItemPos = 4)
+	{
+		StringLower, TempText, TempText
+		TempText := RegExReplace(TempText, "((?:^|[.!?]\s+)[a-z])", "$u1")
+	} ;Seperator, no 5
+	Else If (A_ThisMenuItemPos = 6)
+	{
+		TempText := RegExReplace(TempText, "\R", "`r`n")
+	}
+	Else If (A_ThisMenuItemPos = 7)
+	{
+		Temp2 =
+		StringReplace, TempText, TempText, `r`n, % Chr(29), All
+		Loop Parse, TempText
+				Temp2 := A_LoopField . Temp2
+		StringReplace, TempText, Temp2, % Chr(29), `r`n, All
+	}
+	
+		If (A_ThisMenuItemPos = 9)
+		{
+			;st_count(string [, searchFor])
+			option := "`n"
+			If GetKeyState("Shift","p")
+				option := SafeInput("Enter Count Character", "Count String:", option)
+			res := st_count(TempText, option)
+			MsgBox, %option% matched %res% times
+			Return
+		}
+		Else If (A_ThisMenuItemPos = 10)
+		{
+			;st_wordWrap(string [, column, indent])
+			option := 120
+			If GetKeyState("Shift","p")
+				option := SafeInput("Enter Line Length", "Max line Length:", option)
+			TempText := st_wordWrap(TempText, option)
+		}
+		Else If (A_ThisMenuItemPos = 11)
+		{
+			;st_removeDuplicates(string [, delim])
+			option := "`n"
+			If GetKeyState("Shift","p")
+				option := SafeInput("Enter Delimiter", "String Delimiter:", option)
+			TempText := st_removeDuplicates(TempText, option)
+			
+		}
+		Else If (A_ThisMenuItemPos = 12)
+		{
+			;st_columnize(data [, delim, justify, pad, colsep])
+			delim := "csv"
+			justify := 1
+			pad := " "
+			colsep := " | "
+			If GetKeyState("Shift","p")
+			{
+				delim := SafeInput("Enter Delimiter", "String Delimiter:", delim)
+				justify := SafeInput("Justify Text", "1-left,2-right,3-center,|-column=1|2|3", justify)
+				pad := SafeInput("Enter Pad Character", "String pad:", pad)
+				colsep := SafeInput("Enter Column Seperator", "Column Seperator:", colsep)
+			}
+			TempText := st_columnize(TempText, delim, justify, pad, colsep)
+			
+		}
+		Else If (A_ThisMenuItemPos = 13)
+		{
+			;st_center(text [, fill, symFIll, delim, exclude])
+			TempText := st_center(TempText)
+		}
+		Else If (A_ThisMenuItemPos = 14)
+		{
+			;st_right(text [, fill, delim, exclude])
+			Temptext := St_right(temptext)
+		}
+		Else if (A_thismenuitempos = 15)
+		{
+			;St_setcase(string [, Case])
+			Option := "t"
+			if Getkeystate("shift","p")
+				Option := Safeinput("enter Case", "|    Use any cell as a name. CaSE-InSEnsitIVe.    |`n|----|-----|---------|------------|---------------|`n| 1  |  U  |   UP    |   UPPER    |   UPPERCASE   |`n|----|-----|---------|------------|---------------|`n| 2  |  l  |   low   |   lower    |   lowercase   |`n|----|-----|---------|------------|---------------|`n| 3  |  T  |  Title  |  TitleCase |               |`n|----|-----|---------|------------|---------------|`n| 4  |  S  |   Sen   |  Sentence  |  Sentencecase |`n|----|-----|---------|------------|---------------|`n| 5  |  i  |   iNV   |   iNVERT   |   iNVERTCASE  |`n|----|-----|---------|------------|---------------|`n| 6  |  r  |  rANd   |   rAnDOm   |   RAndoMcASE  |				Option := Safeinput("enter Case", "|    Use Any Cell as a Name. Case-insensitive.    |`n|----|-----|---------|------------|---------------|`n| 1  |  u  |   up    |   Upper    |   Uppercase   |`n|----|-----|---------|------------|---------------|`n| 2  |  l  |   Low   |   Lower    |   Lowercase   |`n|----|-----|---------|------------|---------------|`n| 3  |  t  |  Title  |  Titlecase |               |`n|----|-----|---------|------------|---------------|`n| 4  |  s  |   Sen   |  Sentence  |  Sentencecase |`n|----|-----|---------|------------|---------------|`n| 5  |  I  |   Inv   |   Invert   |   Invertcase  |`n|----|-----|---------|------------|---------------|`n| 6  |  r  |  Rand   |   Random   |   Randomcase  |", Option,350)
+", Option,350)
+			Temptext := St_setcase(TempText, option)
+		}
+	}
+	PutText(TempText)
+	IgnoreClipboardChange := False
 Return
+
 
 ;******************************************************************************
 ;  https://autohotkey.com/board/topic/35566-rapidhotkey/
@@ -983,10 +1061,11 @@ PutText(MyText)
 
 ;This makes sure sure the same window stays active after showing the InputBox.
 ;Otherwise you might get the text pasted into another window unexpectedly.
-SafeInput(Title, Prompt, Default = "")
+SafeInput(Title, Prompt, Default = "", Height = 120)
 {
 	 ActiveWin := WinExist("A")
-	 InputBox OutPut, %Title%, %Prompt%,,, 120,,,,, %Default%
+	 ;InputBox, OutputVar [, Title, Prompt, HIDE, Width, Height, X, Y, Font, Timeout, Default]
+	 InputBox OutPut, %Title%, %Prompt%,,, Height,,,,, %Default%
 	 WinActivate ahk_id %ActiveWin%
 	 Return OutPut
 }
@@ -998,6 +1077,405 @@ IsWindow(hwnd)
 	 WinGet, s, Style, ahk_id %hwnd% 
 	 return s & 0xC00000 ? (s & 0x80000000 ? 0 : 1) : 0
 	 ;WS_CAPTION AND !WS_POPUP(for tooltips etc) 
+}
+
+
+/*
+Name: String Things - Common String & Array Functions
+Version 2.6 (Fri May 30, 2014)
+Created: Sat March 02, 2013
+Author: tidbit
+Credit:
+   AfterLemon  --- st_insert(), st_overwrite() bug fix. st_strip(), and more.
+   Bon         --- word(), leftOf(), rightOf(), between() - These have been replaced
+   faqbot      --- jumble()
+   Lexikos     --- flip()
+   MasterFocus --- Optimizing LineWrap and WordWrap.
+   rbrtryn     --- group()
+   Rseding91   --- Optimizing LineWrap and WordWrap.
+   Verdlin     --- st_concat(), A couple nifty forum-only functions.
+   
+Description:
+   A compilation of commonly needed function for strings and arrays.
+
+No functions rely on eachother. You may simply copy/paste the ones you want or need.
+.-==================================================================-.
+|Function                                                            |
+|====================================================================|
+| st_count(string [, searchFor])                                     |+
+| st_insert(insert, into [, pos])                                    |
+| st_delete(string [, start, length])                                |
+| st_overwrite(overwrite, into [, pos])                              |
+| st_format(string, param1, param2, param3, ...)                     |
+| st_word(string [, wordNu, Delim, temp])                            |
+| st_subString(string, searchFor [, direction, instance, searchFor2])|
+| st_jumble(Text[, Weight, Delim , Omit])                            |
+| st_concat(delim, as*)                                              |
+|                                                                    |
+| st_lineWrap(string [, column, indent])                             |
+| st_wordWrap(string [, column, indent])                             |+
+| st_readLine(string, line [, delim, exclude])                       |
+| st_deleteLine(string, line [, delim, exclude])                     |
+| st_insertLine(insert, into, line [, delim, exclude])               |
+|                                                                    |
+| st_flip(string)                                                    |
+| st_setCase(string [, case])                                        |+
+| st_contains(mixed [, lookFor*])                                    |
+| st_removeDuplicates(string [, delim])                              |+
+| st_pad(string [, left, right, LCount, RCount])                     |
+|                                                                    |
+| st_group(string, size, separator [, perLine, startFromFront])      |
+| st_columnize(data [, delim, justify, pad, colsep])                 |+
+| st_center(text [, fill, symFIll, delim, exclude])                  |+
+| st_right(text [, fill, delim, exclude])                            |+
+|----------------------------------------------------------------    |
+|array stuff:                                                        |
+|   st_split(string [, delim, exclude])                              |
+|   st_glue(array [, delim])                                         |
+|   st_printArr(array [, depth])                                     |
+|   st_countArr(array [, depth])                                     |
+|   st_randomArr(array [, min, max, timeout])                        |
+'-==================================================================-'
+*/
+/*
+Count
+   Counts the number of times a tolken exists in the specified string.
+
+   string    = The string which contains the content you want to count.
+   searchFor = What you want to search for and count.
+
+   note: If you're counting lines, you may need to add 1 to the results.
+
+example: st_count("aaa`nbbb`nccc`nddd", "`n")+1 ; add one to count the last line
+output:  4
+*/
+st_count(string, searchFor="`n")
+{
+   StringReplace, string, string, %searchFor%, %searchFor%, UseErrorLevel
+   return ErrorLevel
+}
+
+/*
+WordWrap
+   Wrap the specified text so each line is never more than a specified length.
+  
+   Unlike st_lineWrap(), this function tries to take into account for words (separated by a space).
+   
+   string     = What text you want to wrap.
+   column     = The column where you want to split. Each line will never be longer than this.
+   indentChar = You may optionally indent any lines that get broken up. Specify
+                What character or string you would like to define as the indent.
+                
+example: st_wordWrap("Apples are a round fruit, usually red.", 20, "---")
+output:
+Apples are a round
+---fruit, usually
+---red.
+*/
+st_wordWrap(string, column=56, indentChar="")
+{
+    indentLength := StrLen(indentChar)
+     
+    Loop, Parse, string, `n, `r
+    {
+        If (StrLen(A_LoopField) > column)
+        {
+            pos := 1
+            Loop, Parse, A_LoopField, %A_Space%
+                If (pos + (loopLength := StrLen(A_LoopField)) <= column)
+                    out .= (A_Index = 1 ? "" : " ") A_LoopField
+                    , pos += loopLength + 1
+                Else
+                    pos := loopLength + 1 + indentLength
+                    , out .= "`n" indentChar A_LoopField
+             
+            out .= "`n"
+        } Else
+            out .= A_LoopField "`n"
+    }
+     
+    Return SubStr(out, 1, -1)
+}
+
+
+/*
+SetCase
+   Set the case (Such as UPPERCASE or lowercase) for the specified text.
+
+   string = The text you want to modify.
+   case   = The case you would like the specified text to be.
+
+   The following types of Case are aloud:
+   .-===============================================-.
+   |    Use any cell as a name. CaSE-InSEnsitIVe.    |
+   |----|-----|---------|------------|---------------|
+   | 1  |  U  |   UP    |   UPPER    |   UPPERCASE   |
+   |----|-----|---------|------------|---------------|
+   | 2  |  l  |   low   |   lower    |   lowercase   |
+   |----|-----|---------|------------|---------------|
+   | 3  |  T  |  Title  |  TitleCase |               |
+   |----|-----|---------|------------|---------------|
+   | 4  |  S  |   Sen   |  Sentence  |  Sentencecase |
+   |----|-----|---------|------------|---------------|
+   | 5  |  i  |   iNV   |   iNVERT   |   iNVERTCASE  |
+   |----|-----|---------|------------|---------------|
+   | 6  |  r  |  rANd   |   rAnDOm   |   RAndoMcASE  |
+   '-===============================================-'
+
+example: st_setCase("ABCDEFGH", "l")
+output:  abcdefgh
+*/
+st_setCase(string, case="s")
+{
+   if (case=1 || case="u" || case="up" || case="upper" || case="uppercase")
+      StringUpper, new, string
+   else if (case=2 || case="l" || case="low" || case="lower" || case="lowercase")
+      StringLower, new, string
+   else if (case=3 || case="t" || case="title" || case="titlecase")
+   {
+      StringLower, string, string, T
+      string:=RegExReplace(string, "i)(with|amid|atop|from|into|onto|over|past|plus|than|till|upon|are|via|and|but|for|nor|off|out|per|the|\b[a-z]{1,2}\b)", "$L1")
+      new:=RegExReplace(string, "^(\w)|(\bi\b)|(\w)(\w+)$", "$U1$U2$U3$4")
+   }
+   else if (case=4 || case="s" || case="sen" || case="sentence" || case="sentencecase")
+   {
+      StringLower string, string
+      new:=RegExReplace(string, "([.?\s!(]\s\w)|^(\b\w)|(\.\s*[(]\w)|(\bi\b)", "$U0")
+   }
+   else if (case=5 || case="i" || case="inv" || case="invert" || case="invertcase")
+   {
+      Loop, parse, string
+      {
+         if A_LoopField is upper
+            new.= Chr(Asc(A_LoopField) + 32)
+         else if A_LoopField is lower
+            new.= Chr(Asc(A_LoopField) - 32)
+         else
+            new.= A_LoopField
+      }
+   }
+   else if (case=6 || case="r" || case="rand" || case="random" || case="randomcase")
+   {
+      loop, parse, string
+      {
+         random, rcase, 0, 1
+         if (rcase==0)
+            StringUpper, out, A_LoopField
+         Else
+            StringLower, out, A_LoopField
+         new.=out
+      }
+      return new
+   }
+   Else
+      return -1
+   return new
+}
+
+
+/*
+RemoveDuplicates
+   Remove any and all consecutive lines. A "line" can be determined by
+   the delimiter parameter. Not necessarily just a `r or `n. But perhaps
+   you want a | as your "line".
+
+   string = The text or symbols you want to search for and remove.
+   delim  = The string which defines a "line".
+
+example: st_removeDuplicates("aaa|bbb|||ccc||ddd", "|")
+output:  aaa|bbb|ccc|ddd
+*/
+st_removeDuplicates(string, delim="`n")
+{
+   delim:=RegExReplace(delim, "([\\.*?+\[\{|\()^$])", "\$1")
+   Return RegExReplace(string, "(" delim ")+", "$1")
+}
+
+/*
+st_columnize
+   Take a set of data with a common delimiter (csv, tab, |, "a string", anything) and
+   nicely organize it into a column structure, like an EXCEL spreadsheet.
+
+	data    = [String] Your input data to be organized.
+	delim   = [Optional] What separates each set of data? It can be a string or it can
+	          be the word "csv" to treat it as a CSV document.
+	justify = [Optional] Specify 1 to align the data to the left of the column, 2 for
+	          aligning to the right or 3 to align centered. You may enter a 
+	          string such as "2|1|3" to adjust columns specifically. Columns are 
+	          separeted by |.
+	pad     = [Optional] The string that should fill in shorter column items to match
+	          the longest item.
+	colsep  = [Optional] What string should go between every column?
+
+example: 
+	data=
+	(
+	"Date","Pupil","Grade"
+	----,-----,-----
+	"25 May","Bloggs, Fred","C"
+	"25 May","Doe, Jane","B"
+	"15 July","Bloggs, Fred","A"
+	"15 April","Muniz, Alvin ""Hank""","A"
+	)
+	output:=Columnize(data, "csv", 2)  
+
+output:
+	    Date |               Pupil | Grade
+	    ---- |               ----- | -----
+	  25 May |        Bloggs, Fred |     C
+	  25 May |           Doe, Jane |     B
+	 15 July |        Bloggs, Fred |     A
+	15 April | Muniz, Alvin "Hank" |     A
+*/
+st_columnize(data, delim="csv", justify=1, pad=" ", colsep=" | ")
+{		
+	widths:=[]
+	dataArr:=[]
+	
+	if (instr(justify, "|"))
+		colMode:=strsplit(justify, "|")
+	else
+		colMode:=justify
+	; make the arrays and get the total rows and columns
+	loop, parse, data, `n, `r
+	{
+		if (A_LoopField="")
+			continue
+		row:=a_index
+		
+		if (delim="csv")
+		{
+			loop, parse, A_LoopField, csv
+			{
+				dataArr[row, a_index]:=A_LoopField
+				if (dataArr.maxindex()>maxr)
+					maxr:=dataArr.maxindex()
+				if (dataArr[a_index].maxindex()>maxc)
+					maxc:=dataArr[a_index].maxindex()
+			}
+		}
+		else
+		{
+			dataArr[a_index]:=strsplit(A_LoopField, delim)
+			if (dataArr.maxindex()>maxr)
+				maxr:=dataArr.maxindex()
+			if (dataArr[a_index].maxindex()>maxc)
+				maxc:=dataArr[a_index].maxindex()
+		}
+	}
+	; get the longest item in each column and store its length
+	loop, %maxc%
+	{
+		col:=a_index
+		loop, %maxr%
+			if (strLen(dataArr[a_index, col])>widths[col])
+				widths[col]:=strLen(dataArr[a_index, col])
+	}
+	; the main goodies.
+	loop, %maxr%
+	{
+		row:=a_index
+		loop, %maxc%
+		{
+			col:=a_index
+			stuff:=dataArr[row,col]
+			len:=strlen(stuff)
+			difference:=abs(strlen(stuff)-widths[col])
+
+			; generate a repeating string about the length of the longest item
+			; in the column.
+			loop, % ceil(widths[col]/((strlen(pad)<1) ? 1 : strlen(pad)))
+    			padSymbol.=pad
+
+			if (isObject(colMode))
+				justify:=colMode[col]
+			; justify everything correctly.
+			; 3 = center, 2= right, 1=left.
+			if (strlen(stuff)<widths[col])
+			{
+				if (justify=3)
+					stuff:=SubStr(padSymbol, 1, floor(difference/2)) . stuff
+					. SubStr(padSymbol, 1, ceil(difference/2))
+				else
+				{
+					if (justify=2)
+						stuff:=SubStr(padSymbol, 1, difference) stuff
+					else ; left justify by default.
+						stuff:= stuff SubStr(padSymbol, 1, difference) 
+				}
+			}
+			out.=stuff ((col!=maxc) ? colsep : "")
+		}
+		out.="`r`n"
+	}
+	stringTrimRight, out, out, 2 ; remove the last blank newline
+	return out
+}
+
+
+/*
+Center
+   Centers a block of text to the longest item in the string.
+
+   text    = The text you would like to center.
+   fill    = A single character to use as the padding to center text.
+   symFIll = 0: Just fill in the left half. 1: Fill in both sides.
+   delim   = The string which defines a "line".
+   exclude = The text you want to ignore when defining a line.
+
+  
+example: st_center("aaa`na`naaaaaaaa")
+output:
+  aaa
+   a
+aaaaaaaa
+*/
+st_center(text, fill=" ", symFIll=0, delim= "`n", exclude="`r")
+{
+	fill:=SubStr(fill,1,1)
+	loop, parse, text, %delim%, %exclude%
+		if (StrLen(A_LoopField)>longest)
+			longest:=StrLen(A_LoopField)
+	loop, parse, text, %delim%, %exclude%
+	{
+		filled:=""		
+		loop, % floor((longest-StrLen(A_LoopField))/2)
+			filled.=fill
+		new.= filled A_LoopField ((symFIll=1) ? filled : "") "`n"
+	}
+	return rtrim(new,"`r`n")
+}
+
+
+/*
+right
+   Align a block of text to the right side.
+
+   text    = The text you would like to right-justify.
+   fill    = A single character to use as to push the text to the right.
+   delim   = The string which defines a "line".
+   exclude = The text you want to ignore when defining a line.
+
+example: st_center("aaa`na`naaaaaaaa")
+output:
+     aaa
+       a
+aaaaaaaa
+*/
+st_right(text, fill=" ", delim= "`n", exclude="`r")
+{
+	fill:=SubStr(fill,1,1)
+	loop, parse, text, %delim%, %exclude%
+		if (StrLen(A_LoopField)>longest)
+			longest:=StrLen(A_LoopField)
+	loop, parse, text, %delim%, %exclude%
+	{
+		filled:=""
+		loop, % abs(longest-StrLen(A_LoopField))
+			filled.=fill
+		new.= filled A_LoopField "`n"
+	}
+	return rtrim(new,"`r`n")
 }
 
 ; Saves the current clipboard history to hard disk

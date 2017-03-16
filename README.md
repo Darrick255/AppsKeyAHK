@@ -98,5 +98,6 @@ HotKeyIt -- RapidHotkey()
 https://autohotkey.com/board/topic/76062-ahk-l-how-to-get-callstack-solution/
 fragman -- Get stack information 
 
-
+https://autohotkey.com/boards/viewtopic.php?f=6&t=53
+tidbit - String Things - Common String & Array Functions
 
