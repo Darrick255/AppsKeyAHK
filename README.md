@@ -81,6 +81,12 @@ LM: allows click draging of window without clicking on tile bar
 | &    | between two keys to combine them |
 
 
+There Have Also Been some addition for my own Specific work environment
+---
+DOMO
+
+Ctrl+Shift+Q will parse a domo Ticket page to get "CLIENTID - Firstname Lastname"
+
 Credits
 
 https://autohotkey.com/board/topic/25393-appskeys-a-suite-of-simple-utility-hotkeys/
@@ -101,3 +107,6 @@ fragman -- Get stack information
 https://autohotkey.com/boards/viewtopic.php?f=6&t=53
 tidbit - String Things - Common String & Array Functions
 
+http://stackoverflow.com/questions/19350814/identifying-a-chrome-webpage
+https://github.com/ilirb/ahk-scripts/blob/master/executable/source/GoogleMusicRemote.ahk
+This is where i learned how to use chrome tab names
