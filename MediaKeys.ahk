@@ -3,7 +3,7 @@
 #NoTrayIcon
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
-SetBatchLines, 10ms
+;SetBatchLines, 10ms
 
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 ;^!Left::Send   {Media_Prev}
@@ -204,6 +204,35 @@ AppsKey::
 	Send {AppsKey}
 Return
 
+;*******************************************************
+;Domo Stuff Start
+^+Q::	
+	IgnoreClipboardChange := True
+	WinGetTitle, CurrentTitle, A
+	TicketTitle = DOMO`: Ticket#`:
+	If (InStr(CurrentTitle, TicketTitle, 0,1) and IgnoreClipboardChange = True)
+	{
+		Send,{Shift Up}{Ctrl Up}
+		Send, {Tab}{Ctrl Down}a{Ctrl Up}
+		GetText(TempText)
+		Send, {Ctrl Down}{Shift Down}{home}{Shift Up}{Ctrl Up}
+		ClientID := SubStr(Temptext, inStr(TempText, "Client Id") + 9, inStr(TempText, "Client Type") - inStr(TempText, "Client Id") - 9)
+		ClientFname := SubStr(Temptext, inStr(TempText, "First Name") + 10, inStr(TempText, "Last Name") - inStr(TempText, "First Name") - 10)
+		ClientLname := SubStr(Temptext, inStr(TempText, "Last Name") + 10, inStr(TempText, "Payroll Status") - inStr(TempText, "Last Name") - 10)
+		ClientFname := st_setCase(ClientFname, "t")
+		ClientLname := st_setCase(ClientLname, "t")
+		TempText := ClientID " - " ClientFname " " ClientLname " "
+		StringReplace,TempText,TempText,`n,,A
+		StringReplace,TempText,TempText,`r,,A
+		IgnoreClipboardChange := False
+		if(IgnoreClipboardChange = False and StrLen(TempText)>5)
+			clipboard := TempText
+		Send, +{tab}
+	}
+Return
+;DOMO Stuff End
+;****************************************************************************************************
+
 ;beggining of clipboard
 ; Clears the history by resetting the indices
 ^+NumpadClear::
@@ -252,58 +281,62 @@ Return
 ;Paste And move Forward one
 ^+V::
 	IgnoreClipboardChange := True
-	Send ^v
-	if (clipindex < maxindex  and IgnoreClipboardChange = True)
+	if (IgnoreClipboardChange = True)
 	{
-		clipindex += 1
+		Send, {Shift Up}{Ctrl Up}{V Up}
+		Send ^v
+		Send, {Shift Down}{Ctrl Down}
+		if (clipindex < maxindex)
+		{
+			clipindex += 1
+		}
+		thisclip := clipvar%clipindex%
+		clipboard := thisclip
+		tooltip %clipindex% - %clipboard%
+		SetTimer, ReSetToolTip, 1000
+		Sleep repeatTimer
 	}
-	thisclip := clipvar%clipindex%
-	clipboard := thisclip
 	IgnoreClipboardChange := False
-	tooltip %clipindex% - %clipboard%
-	SetTimer, ReSetToolTip, 1000
-	Sleep 200
 Return
 
 ^+1::
-	repeat:=50
-	tooltip Repeat Timer Changed - %repeat%
-	SetTimer, ReSetToolTip, % repeat
+	repeatTimer:=250
+	tooltip repeat Timer Changed - %repeatTimer%
+	SetTimer, ReSetToolTip, % repeatTimer
 return
 ^+2::
-	repeat:= repeat - 25
-	tooltip Repeat Timer Changed - %repeat%
-	SetTimer, ReSetToolTip, % repeat
+	repeatTimer:= repeatTimer - 50
+	tooltip repeat Timer Changed - %repeatTimer%
+	SetTimer, ReSetToolTip, % repeatTimer
 return
 ^+3::
-	repeat:=repeat +50
-	tooltip Repeat Timer Changed - %repeat%
-	SetTimer, ReSetToolTip, % repeat
+	repeatTimer:=repeatTimer + 50
+	tooltip repeat Timer Changed - %repeatTimer%
+	SetTimer, ReSetToolTip, % repeatTimer
 return
-^+4::
-	repeat:=200
-	tooltip Repeat Timer Changed - %repeat%
-	SetTimer, ReSetToolTip,% repeat
-return
+
 
 ;Paste And move Forward one
 ^+R::
 	IgnoreClipboardChange := True
-	clipboard = %clipboard%
-	Clipboard := regexreplace(Clipboard, "\r\n?|\n\r?", "`n")
-	Send, {Shift Up}{Ctrl Up}{V Up}
-	Send, %clipboard%
-	Send, {Shift Down}{Ctrl Down}{V Up}
-	if clipindex < %maxindex%
+	if (IgnoreClipboardChange = True)
 	{
-		clipindex += 1
+		clipboard = %clipboard%
+		Clipboard := regexreplace(Clipboard, "\r\n?|\n\r?", "`n")
+		Send, {Shift Up}{Ctrl Up}{V Up}
+		Send, %clipboard%
+		Send, {Shift Down}{Ctrl Down}{V Up}
+		if clipindex < %maxindex%
+		{
+			clipindex += 1
+		}
+		thisclip := clipvar%clipindex%
+		clipboard := thisclip
+		tooltip %clipindex% - %clipboard%
+		SetTimer, ReSetToolTip, 1000
+		sleep repeatTimer
 	}
-	thisclip := clipvar%clipindex%
-	clipboard := thisclip
 	IgnoreClipboardChange := False
-	tooltip %clipindex% - %clipboard%
-	SetTimer, ReSetToolTip, 1000
-	sleep repeat
 Return
 ;https://autohotkey.com/board/topic/58230-how-to-slow-down-send-commands/
 ;send event type slow
