@@ -38,6 +38,7 @@ Appskey & ~ : Help Menu
 | Appskey & F4         | Force Close Window With Prompt        |
 | Appskey & Shift & F4 | Force Close Without Prompt            |
 | Appskey & r          | Reload Script.                        |
+| Appskey & insert          | Create AHK file Insert (base 64 encoding)                        |
 
 Left Alt & Left Shift & Tilde: Restore All Hidden Windows
 
@@ -61,10 +62,9 @@ LM: allows click draging of window without clicking on tile bar
 | Ctrl+Shift+Z               | Load Highlighted Text Into Clipboard History Line By Line |
 | Ctrl+Shift+V               | Paste And Move To Next Item Follows Repeat Speed          |
 | Ctrl+Shift+R               | Paste Clipboard(and do {actions} ) And Go Forward One     |
-| Ctrl+Shift+1               | Set Repeat Speed To 50ms                                  |
-| Ctrl+Shift+2               | Decrease The Repeat Speed By 25ms                         |
-| Ctrl+Shift+3               | Increase The Repeat Speed By 25ms                         |
-| Ctrl+Shift+4               | Set Repeat Speed To 200ms                                 |
+| Ctrl+Shift+1               | Set Repeat Speed To 250ms                                  |
+| Ctrl+Shift+2               | Decrease The Repeat Speed By 50ms                         |
+| Ctrl+Shift+3               | Increase The Repeat Speed By 50ms                         |
 | Ctrl+Shift+5               | Clear History                                             |
 
 

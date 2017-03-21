@@ -673,6 +673,7 @@ PutText(Temp2)
 Return
 
 AppsKey & .::
+;hide and restore windows.
 If GetKeyState("shift")
 {
 	 Loop Parse, HiddenWins, |
@@ -713,86 +714,34 @@ AppsKey & c::
 Drive Eject,, % GetKeyState("shift")
 Return
 
-AppsKey & e::Edit
 
 <^`::
 If GetKeyState("shift")
 {
-	 Loop Parse, HiddenWins3, |
-			WinShow ahk_id %A_LoopField%
-	 HiddenWins3 =
-}
-else
-{
-	 MyWin := WinExist("A")
-	 if IsWindow(MyWin) 
-	 {
-			HiddenWins3 .= (HiddenWins3 ? "|" : "") . MyWin
-			WinHide ahk_id %MyWin%
-			GroupActivate All
-	 }
-}
-Return
-
-
-<^1::
-MsgBox,  A_CaretX and A_CaretY
-If GetKeyState("shift")
-{
-	 Loop Parse, HiddenWins3, |
-			WinShow ahk_id %A_LoopField%
-	 HiddenWins3 =
-}
-else
-{
-	 MyWin := WinExist("A")
-	 if IsWindow(MyWin) 
-	 {
-			HiddenWins3 .= (HiddenWins3 ? "|" : "") . MyWin
-			WinHide ahk_id %MyWin%
-			GroupActivate All
-	 }
-}
-Return
-
-<!`::
-	 MyWin := WinExist("A")
-	 if IsWindow(MyWin) 
-	 {
-			HiddenWins3 .= (HiddenWins3 ? "|" : "") . MyWin
-			WinHide ahk_id %MyWin%
-			GroupActivate All
-	 }
-Return
-
-<!<+~::
 	 Loop Parse, HiddenWins, |
 			WinShow ahk_id %A_LoopField%
-	 Loop Parse, HiddenWins2, |
-			WinShow ahk_id %A_LoopField%
-	 Loop Parse, HiddenWins3, |
-			WinShow ahk_id %A_LoopField%
-	 HiddenWins3 =
-Return
-
-AppsKey & h::
-If GetKeyState("shift")
-{
-	 Loop Parse, HiddenWinsh, |
-			WinShow ahk_id %A_LoopField%
-	 HiddenWinsh =
+	 HiddenWins =
 }
 else
 {
 	 MyWin := WinExist("A")
 	 if IsWindow(MyWin) 
 	 {
-			HiddenWinsh .= (HiddenWinsh ? "|" : "") . MyWin
+			HiddenWins .= (HiddenWins ? "|" : "") . MyWin
 			WinHide ahk_id %MyWin%
 			GroupActivate All
 	 }
 }
 Return
+
+
+<!<+~::
+	;show all hidden windows
+	 Loop Parse, HiddenWins, |
+			WinShow ahk_id %A_LoopField%
+	 HiddenWins =
+Return
+
 
 $RButton::
 	KeyWait,LButton,DT0.3
@@ -800,16 +749,16 @@ $RButton::
 		KeyWait,RButton
 		If GetKeyState("shift")
 {
-	 Loop Parse, HiddenWins3, |
+	 Loop Parse, HiddenWins, |
 			WinShow ahk_id %A_LoopField%
-	 HiddenWins3 =
+	 HiddenWins =
 }
 else
 {
 	 MyWin := WinExist("A")
 	 if IsWindow(MyWin) 
 	 {
-			HiddenWins3 .= (HiddenWins3 ? "|" : "") . MyWin
+			HiddenWins .= (HiddenWins ? "|" : "") . MyWin
 			WinHide ahk_id %MyWin%
 			GroupActivate All
 	 }
@@ -830,25 +779,14 @@ Return
 
 
 AppsKey & LButton::
-CoordMode, Mouse  ; Switch to screen/absolute coordinates.
-MouseGetPos, EWD_MouseStartX, EWD_MouseStartY, EWD_MouseWin
-WinGetPos, EWD_OriginalPosX, EWD_OriginalPosY,,, ahk_id %EWD_MouseWin%
-WinGet, EWD_WinState, MinMax, ahk_id %EWD_MouseWin% 
-if EWD_WinState = 0  ; Only if the window isn't maximized 
-		SetTimer, EWD_WatchMouse, 10 ; Track the mouse as the user drags it.
+	CoordMode, Mouse  ; Switch to screen/absolute coordinates.
+	MouseGetPos, EWD_MouseStartX, EWD_MouseStartY, EWD_MouseWin
+	WinGetPos, EWD_OriginalPosX, EWD_OriginalPosY,,, ahk_id %EWD_MouseWin%
+	WinGet, EWD_WinState, MinMax, ahk_id %EWD_MouseWin% 
+	if EWD_WinState = 0  ; Only if the window isn't maximized 
+			SetTimer, EWD_WatchMouse, 10 ; Track the mouse as the user drags it.
 return
 
-AppsKey & z::
-DetectHiddenWindows, On
-;WinGet, allwins, list,,, Program Manager
-;Loop, %allwins%
-{
-		;thiswin := allwins%A_Index%
-		;WinActivate, ahk_id %thiswin%
-	;WinShow ahk_id %thiswin%
-}
-DetectHiddenWindows, Off
-return
 
 
 EWD_WatchMouse:
@@ -1985,9 +1923,9 @@ ExitSub:
 		thisclip := clipvar%A_Index%
 		FileAppend %thisclip%, C:\tmp\AppsKeyAHK\clipvar%zindex%.bin
 	}
+	;  allWins .= (HiddenWins ? "|" : "") . HiddenWins
+	;  allWins .= (HiddenWins2 ? "|" : "") . HiddenWins2
 	allWins .= (HiddenWins ? "|" : "") . HiddenWins
-	allWins .= (HiddenWins2 ? "|" : "") . HiddenWins2
-	allWins .= (HiddenWins3 ? "|" : "") . HiddenWins3
 	FileAppend %allWins%, C:\tmp\AppsKeyAHK\windowHist.txt
 
 	ExitApp ;end of clipboard
