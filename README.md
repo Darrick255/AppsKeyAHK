@@ -109,4 +109,11 @@ tidbit - String Things - Common String & Array Functions
 
 http://stackoverflow.com/questions/19350814/identifying-a-chrome-webpage
 https://github.com/ilirb/ahk-scripts/blob/master/executable/source/GoogleMusicRemote.ahk
-This is where i learned how to use chrome tab names (no attribution because no code was taken)
+This is where i learned how to use chrome tab names (no name attribution because no code was taken)
+
+Created by Robert Eding: Rseding91@yahoo.com
+Current version 2.6 
+https://autohotkey.com/board/topic/64481-include-virtually-any-file-in-a-script-exezipdlletc/page-4
+
+Short description:  Gets the URL of the current (active) browser tab for most modern browsers
+https://autohotkey.com/boards/viewtopic.php?t=3702 -- atnbueno

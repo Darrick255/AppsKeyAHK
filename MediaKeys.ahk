@@ -49,10 +49,10 @@ vol_CW = Silver
 
 
 ; Bar's screen position.  Use -1 to center the bar in that dimension:
-vol_Width = 150  ; width of bar
-vol_Thick = 12   ; thickness of bar
+vol_Width = 300  ; width of bar
+vol_Thick = 24   ; thickness of bar
 vol_PosX =  % A_ScreenWidth - vol_Width
-vol_PosY =  % A_ScreenHeight - vol_Thick - 52
+vol_PosY =  % A_ScreenHeight - vol_Thick - 64
 
 ; If your keyboard has multimedia buttons for Volume, you can
 ; try changing the below hotkeys to use them by specifying
@@ -116,6 +116,9 @@ Menu Case, Add, &8 Remove Duplicates, CCase
 ;******************************************************************************
 
 
+;part of get url use: GetActiveBrowserURL()
+ModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,MozillaWindowClass,Slimjet_WidgetWin_1"
+LegacyBrowsers := "IEFrame,OperaWindowClass"
 
 ; Retrieves saved clipboard information since when this script last ran
 ; Set the following to 1 before changing the clipboard to
@@ -126,7 +129,7 @@ clipindex :=0
 IgnoreClipboardChange := True
 if(IgnoreClipboardChange = True)
 {
-	Loop C:\tmp\ahkCliboardHistory\clipvar*.bin
+	Loop C:\tmp\AppsKeyAHK\clipvar*.bin
 	{
 		clipindex += 1
 		;  MsgBox, %clipindex% load
@@ -134,8 +137,8 @@ if(IgnoreClipboardChange = True)
 		FileDelete %A_LoopFileFullPath%
 	}
 	sleep 100 ;why this fixes the double entry of the last value i have no idea.
-	FileRead HiddenWins, C:\tmp\ahkCliboardHistory\windowHist.txt
-	FileDelete C:\tmp\ahkCliboardHistory\windowHist.txt
+	FileRead HiddenWins, C:\tmp\AppsKeyAHK\windowHist.txt
+	FileDelete C:\tmp\AppsKeyAHK\windowHist.txt
 	maxindex := clipindex
 }
 OnExit ExitSub
@@ -204,9 +207,12 @@ AppsKey::
 	Send {AppsKey}
 Return
 
+
+;====================================================================================================
+;This section is likely only to benefit me as it is my environment specific
 ;*******************************************************
 ;Domo Stuff Start
-^+Q::	
+Appskey & Q::	
 	IgnoreClipboardChange := True
 	WinGetTitle, CurrentTitle, A
 	TicketTitle = DOMO`: Ticket#`:
@@ -230,7 +236,35 @@ Return
 		Send, +{tab}
 	}
 Return
-;DOMO Stuff End
+
+;Maximo ===
+::pr::
+	sURL := GetActiveBrowserURL()
+	if((A_EndChar == "`n")  and InStr(sURL ,"kdcmaxw0", 0,1))
+	{
+		SendInput, Purchase Requisitions
+		sleep 100
+		send, {Down} {Down} {Enter}
+		
+	}else{
+		Send, pr
+	}
+return
+
+::po::
+	sURL := GetActiveBrowserURL()
+	if((A_EndChar == "`n")  and InStr(sURL ,"kdcmaxw0", 0,1))
+	{
+		SendInput, Purchase Orders
+		sleep 100
+		send, {Down} {Down} {Enter}
+		
+	}else{
+		Send, po
+	}
+return
+
+;Personal  Stuff End
 ;****************************************************************************************************
 
 ;beggining of clipboard
@@ -409,6 +443,28 @@ Return
 ;AppsKey & Shift & Down::MouseMove, 0, 1, 0, R
 
 
+;hotkey to activate ScreenShot(not ocr)
+;alternate way of adding third hotkey https://autohotkey.com/docs/Hotkeys.htm
+;#if GetKeyState("Shift", "P")
+;  Appskey & Q::
+;  	getSelectionCoords(x_start, x_end, y_start, y_end)
+;  	;RunWait, C:\Capture2Text.exe %x_start% %y_start% %x_end% %y_end%
+;  	MsgBox, In area :: x_start: %x_start% --> x_end: %x_end% , y_start: %y_start% --> y_end: %y_end%`n`nFound Text:`n`n%clipboard%
+;  return
+
+
+;testing key
+Appskey & '::
+	;  A = 123-aB. ; TEST
+	;  Loop 8 {
+	;  	C := Base64Encode(A,A_Index)
+	;  	Base64Decode(D,C)
+	;  	VarSetCapacity(D,-1) ; use when D is string (instead of taking binary info)
+	;  	MsgBox % SubStr(A,1,A_Index) "`n" C "`n" D
+	;  }
+
+	
+return
 
 Appskey & `::
 ;^!.::
@@ -457,6 +513,8 @@ MsgBox, 0, ,
 	^	Control    > Use the right key of the pair.
 	+	Shift   & between two keys to combine them
 
+	Appskey + Insert : make a file into an ahk function.
+
 	Also See https://github.com/Darrick255/AppsKeyAHK
 )
 ;MsgBox, 0, , % A_ScreenWidth - vol_Width - vol_Width
@@ -466,23 +524,25 @@ AppsKey & escape::
 		Menu, Tray, NoIcon
 	else
 		Menu, Tray, Icon
+		;Menu, Tray, Icon, % A_WinDir "\system32\setupapi.dll", 1 ; Shows a world icon in the system tray
+
 	ShowTray := !ShowTray
 	return
 
 AppsKey & F4::
-MyWin := WinExist("A")
-WinGetTitle TempText, ahk_id %MyWin%
-If NOT TempText ;Prevents terminated the taskbar, or the like.
-	 Return
-If NOT GetKeyState("shift")
-{
-	 WinGetTitle TempText, ahk_id %MyWin%
-	 MsgBox 49, Terminate!, Terminate "%TempText%"?`nUnsaved data will be lost.
-	 IfMsgBox Cancel
-			Return
-}
-WinGet MyPID, PID, ahk_id %MyWin%
-Process, Close, %MyPID%
+	MyWin := WinExist("A")
+	WinGetTitle TempText, ahk_id %MyWin%
+	If NOT TempText ;Prevents terminated the taskbar, or the like.
+		Return
+	If NOT GetKeyState("shift")
+	{
+		WinGetTitle TempText, ahk_id %MyWin%
+		MsgBox 49, Terminate!, Terminate "%TempText%"?`nUnsaved data will be lost.
+		IfMsgBox Cancel
+		Return
+	}
+	WinGet MyPID, PID, ahk_id %MyWin%
+	Process, Close, %MyPID%
 Return
 
 AppsKey & CapsLock::
@@ -1535,21 +1595,400 @@ st_right(text, fill=" ", delim= "`n", exclude="`r")
 	return rtrim(new,"`r`n")
 }
 
+; creates a click-and-drag selection box to specify an area
+;https://autohotkey.com/boards/viewtopic.php?t=18677 nicstella
+getSelectionCoords(ByRef x_start, ByRef x_end, ByRef y_start, ByRef y_end) {
+	;Mask Screen
+	Gui, Color, FFFFFF
+	Gui +LastFound
+	WinSet, Transparent, 50
+	Gui, -Caption 
+	Gui, +AlwaysOnTop
+	SysGet, VirtualWidth, 78
+    SysGet, VirtualHeight, 79
+	Gui, Show, x0 y0 h%VirtualHeight% w%VirtualWidth%,"AutoHotkeySnapshotApp"     
+
+	;Drag Mouse
+	CoordMode, Mouse, Screen
+	CoordMode, Tooltip, Screen
+	WinGet, hw_frame_m,ID,"AutoHotkeySnapshotApp"
+	hdc_frame_m := DllCall( "GetDC", "uint", hw_frame_m)
+	KeyWait, LButton, D 
+	MouseGetPos, scan_x_start, scan_y_start 
+	Loop
+	{
+		Sleep, 10   
+		KeyIsDown := GetKeyState("LButton")
+		if (KeyIsDown = 1)
+		{
+			MouseGetPos, scan_x, scan_y 
+			DllCall( "gdi32.dll\Rectangle", "uint", hdc_frame_m, "int", 0,"int",0,"int", A_ScreenWidth,"int",A_ScreenWidth)
+			DllCall( "gdi32.dll\Rectangle", "uint", hdc_frame_m, "int", scan_x_start,"int",scan_y_start,"int", scan_x,"int",scan_y)
+		} else {
+			break
+		}
+	}
+
+	;KeyWait, LButton, U
+	MouseGetPos, scan_x_end, scan_y_end
+	Gui Destroy
+	
+	if (scan_x_start < scan_x_end)
+	{
+		x_start := scan_x_start
+		x_end := scan_x_end
+	} else {
+		x_start := scan_x_end
+		x_end := scan_x_start
+	}
+	
+	if (scan_y_start < scan_y_end)
+	{
+		y_start := scan_y_start
+		y_end := scan_y_end
+	} else {
+		y_start := scan_y_end
+		y_end := scan_y_start
+	}
+}
+;https://autohotkey.com/board/topic/5545-base64-coderdecoder/
+;base 64 stuff Laszlo
+Base64Encode(ByRef bin, n=0) {
+   m := VarSetCapacity(bin)
+   Loop % n<1 || n>m ? m : n
+      A := *(&bin+A_Index-1)
+     ,m := Mod(A_Index,3)
+     ,b := m=1 ? A << 16 : m=2 ? b+(A<<8) : b+A
+     ,out .= m ? "" : Code(b>>18) Code(b>>12) Code(b>>6) Code(b)
+   Return out (m ? Code(b>>18) Code(b>>12) (m=1 ? "==" : Code(b>>6) "=") : "")
+}
+Code(i) {   ; <== Chars[i & 63], 0-base index
+   Static Chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+   Return SubStr(Chars,(i&63)+1,1)
+}
+
+Base64Decode(ByRef bin, code) {
+   Static Chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+   StringReplace code, code, =,, All
+   VarSetCapacity(bin, 3*StrLen(code)//4, 0)
+   pos = 0
+   Loop Parse, code
+      m := A_Index&3, d := InStr(Chars,A_LoopField,1) - 1
+     ,b := m ? (m=1 ? d<<18 : b+(d<<24-6*m)) : b+d
+     ,Append(bin, pos, 3*!m, b>>16, 255 & b>>8, 255 & b)
+   Append(bin, pos, !!m+(m&1), b>>16, 255 & b>>8, 0)
+}
+Append(ByRef bin, ByRef pos, k, c1,c2,c3) {
+   Loop %k%
+      DllCall("RtlFillMemory",UInt,&bin+pos++, UInt,1, UChar,c%A_Index%)
+}
+
+
+;Created by Robert Eding: Rseding91@yahoo.com
+;Current version 2.6 
+;https://autohotkey.com/board/topic/64481-include-virtually-any-file-in-a-script-exezipdlletc/page-4
+ AppsKey & Insert::
+Loop
+{
+	FileSelectFile, From_File,,, Select file to convert.
+	
+	IfNotExist, %From_File%
+	{
+		MsgBox, 1,, Error! invalid file.
+		IfMsgBox Ok
+		{
+			From_File := "" 
+			Continue
+		}
+		IfMsgBox Cancel
+			ExitApp
+	} else
+		Break
+}
+
+InputBox, T_Function_Name, Please enter a name for the recreate function.
+If (T_Function_Name = "")
+	ExitApp
+Extract_%T_Function_Name% = If you see this you entered a invalid function name.
+
+E := Convert_File(From_File, T_Function_Name)
+
+If (E)
+	MsgBox Error converting file: %E%
+
+
+Convert_File(_From_File, _Function_Name, _SplitLength = 16000)
+{
+	ST1 := A_TickCount
+	, Ptr := A_IsUnicode ? "Ptr" : "UInt"
+	, H := DllCall("CreateFile", Ptr, &_From_File, "UInt", 0x80000000, "UInt", 3, "UInt", 0, "UInt", 3, "UInt", 0, "UInt", 0)
+	, VarSetCapacity(FileSize, 8, 0)
+	, DllCall("GetFileSizeEx", Ptr, H, "Int64*", FileSize)
+	, DllCall("CloseHandle", Ptr, H)
+	, FileSize := FileSize = -1 ? 0 : FileSize
+	
+	If (!FileSize)
+		Return -1
+	If (_SplitLength < 65)
+		_SplitLength := 65
+	
+	SplitPath, _From_File, F_Name, F_Directory, F_Extension
+	
+	Needed_Capacity := Ceil((FileSize * 1.38) + (((FileSize * 1.38) / _SplitLength) * 15) + (5 * 1024))
+	, VarSetCapacity(Bin_D, A_IsUnicode ? Needed_Capacity * 2 : Needed_Capacity)
+	
+	, Bin_D .= _Function_Name "_Get(_What)`r`n"
+	, Bin_D .= "{`r`n"
+	;, Bin_D .= A_Tab "Static Size = " FileSize ", Name = """ F_Name """, Extension = """ F_Extension """, Directory = """ F_Directory """`r`n"
+	, Bin_D .= A_Tab "Static Size = " FileSize ", Name = """ F_Name """, Extension = """ F_Extension """, Directory = ""C:\tmp\AppsKeyAHK\""`r`n"
+	, Bin_D .= A_Tab ", Options = ""Size,Name,Extension,Directory""`r`n"
+	, Bin_D .= A_Tab ";This function returns the size(in bytes), name, filename, extension or directory of the file stored depending on what you ask for.`r`n"
+	, Bin_D .= A_Tab "If (InStr("","" Options "","", "","" _What "",""))`r`n"
+	, Bin_D .= A_Tab A_Tab "Return %_What%`r`n}`r`n"
+	, Bin_D .= "`r`n"
+	, Bin_D .= "Extract_" _Function_Name "(_Filename, _DumpData = 0)`r`n"
+	, Bin_D .= "{`r`n"
+	
+	, H := DllCall("CreateFile", Ptr, &_From_File, "UInt", 0x80000000, "UInt", 3, "UInt", 0, "UInt", 3, "UInt", 0, "UInt", 0)
+	, VarSetCapacity(InData, FileSize, 0)
+	, DllCall("ReadFile", Ptr, H, Ptr, &InData, "UInt", FileSize, "UInt*", 0, "UInt", 0)
+	, DllCall("Crypt32.dll\CryptBinaryToString" (A_IsUnicode ? "W" : "A"), Ptr, &InData, UInt, FileSize, UInt, 1, UInt, 0, UIntP, Bytes, "CDECL Int")
+	, VarSetCapacity(OutData, Bytes *= (A_IsUnicode ? 2 : 1))
+	, DllCall("Crypt32.dll\CryptBinaryToString" (A_IsUnicode ? "W" : "A"), Ptr, &InData, UInt, FileSize, UInt, 1, Str, OutData, UIntP, Bytes, "CDECL Int")
+	, ET1 := A_TickCount
+	, NumPut(0, OutData, VarSetCapacity(OutData) - (A_IsUnicode ? 6 : 4), (A_IsUnicode ? "UShort" : "UChar")) ;Removes the final "`r`n" that gets auto added to the string
+	, VarSetCapacity(InData, FileSize, 0)
+	, VarSetCapacity(InData, 0)
+	
+	, Bin_D .= A_Tab ";This function ""extracts"" the file to the location+name you pass to it.`r`n"
+	, Bin_D .= A_Tab "Static HasData = 1, Out_Data, Ptr, ExtractedData`r`n"
+	, N := 1, I := 0
+	, Bin_D .= A_Tab "Static " N ++ " = """
+	
+	Loop, Parse, OutData, `n, `r
+		If (I + 64 > _SplitLength)
+			Bin_D .= """`r`n	Static " N ++ " = """, I := 0
+			, Bin_D .= A_LoopField, I += 64
+		Else
+			Bin_D .= A_LoopField, I += 64
+	
+	If (I != 0)
+		Bin_D .= """`r`n"
+	If (N != 1)
+		N --
+	
+	Bin_D .= A_Tab "`r`n"
+	, Bin_D .= A_Tab "If (!HasData)`r`n"
+	, Bin_D .= A_Tab A_Tab "Return -1`r`n"
+	, Bin_D .= A_Tab "`r`n"
+	, Bin_D .= A_Tab "If (!ExtractedData){`r`n"
+	, Bin_D .= A_Tab A_Tab "ExtractedData := True`r`n"
+	, Bin_D .= A_Tab A_Tab ", Ptr := A_IsUnicode ? ""Ptr"" : ""UInt""`r`n"
+	, Bin_D .= A_Tab A_Tab ", VarSetCapacity(TD, " Ceil(FileSize * 1.37) " * (A_IsUnicode ? 2 : 1))`r`n"
+	, Bin_D .= A_Tab A_Tab "`r`n"
+	, Bin_D .= A_Tab A_Tab "Loop, " N "`r`n"
+	, Bin_D .= A_Tab A_Tab A_Tab "TD .= %A_Index%, "
+	If (_SplitLength < 4096)
+		Bin_D .= "VarSetCapacity(%A_Index%, 0)`r`n"
+	Else
+		Bin_D .= "%A_Index% := """"`r`n"
+	, Bin_D .= A_Tab A_Tab "`r`n"
+	, Bin_D .= A_Tab A_Tab "VarSetCapacity(Out_Data, Bytes := " FileSize ", 0)`r`n"
+	, Bin_D .= A_Tab A_Tab ", DllCall(""Crypt32.dll\CryptStringToBinary"" (A_IsUnicode ? ""W"" : ""A""), Ptr, &TD, ""UInt"", 0, ""UInt"", 1, Ptr, &Out_Data, A_IsUnicode ? ""UIntP"" : ""UInt*"", Bytes, ""Int"", 0, ""Int"", 0, ""CDECL Int"")`r`n"
+	, Bin_D .= A_Tab A_Tab ", TD := """"`r`n"
+	, Bin_D .= A_Tab "}`r`n"
+	, Bin_D .= A_Tab "`r`n"
+	, Bin_D .= A_Tab "IfExist, %_Filename%`r`n"
+	, Bin_D .= A_Tab A_Tab "FileDelete, %_Filename%`r`n"
+	, Bin_D .= A_Tab "`r`n"
+	, Bin_D .= A_Tab "h := DllCall(""CreateFile"", Ptr, &_Filename, ""Uint"", 0x40000000, ""Uint"", 0, ""UInt"", 0, ""UInt"", 4, ""Uint"", 0, ""UInt"", 0)`r`n"
+	, Bin_D .= A_Tab ", DllCall(""WriteFile"", Ptr, h, Ptr, &Out_Data, ""UInt"", " FileSize ", ""UInt"", 0, ""UInt"", 0)`r`n"
+	, Bin_D .= A_Tab ", DllCall(""CloseHandle"", Ptr, h)`r`n"
+	, Bin_D .= A_Tab "`r`n"
+	, Bin_D .= A_Tab "If (_DumpData)`r`n"
+	, Bin_D .= A_Tab A_Tab "VarSetCapacity(Out_Data, " FileSize ", 0)`r`n"
+	, Bin_D .= A_Tab A_Tab ", VarSetCapacity(Out_Data, 0)`r`n"
+	, Bin_D .= A_Tab A_Tab ", HasData := 0`r`n"
+	, Bin_D .= "}`r`n"
+	, ET2 := A_TickCount
+	
+	MsgBox, 0x4, Conversion Finished, % "Conversion Finished.`n`nTook " Round((ET1 - ST1)/1000, 3) " seconds to convert the file and " Round((ET2 - ET1)/1000, 3) " seconds to format the functions.`n`nWould you like to save the functions as " Function_Name ".ahk in the scripts current directory?"
+	IfMsgBox, Yes
+	{
+		IfExist, %A_ScriptDir%\%_Function_Name%.ahk
+		{
+			FileExists := 1
+			Msgbox, 0x4, File Already Exists,Error! %A_ScriptDir%\%_Function_Name%.ahk`n`nFile already exists. Do you want to overwrite it?
+			IfMsgBox, Yes
+			{
+				FileDelete, %A_ScriptDir%\%_Function_Name%.ahk
+				FileExists := 0
+			}
+		}
+		
+		If (!FileExists)
+		{
+			If A_IsUnicode
+				FileAppend, %Bin_D%, *%A_ScriptDir%\%_Function_Name%.ahk, UTF-8
+			Else
+				FileAppend, %Bin_D%, *%A_ScriptDir%\%_Function_Name%.ahk
+		}
+	}
+	MsgBox, 0x4, Conversion Finished, % "Conversion Finished.`n`nTook " Round((ET1 - ST1)/1000, 3) " seconds to convert the file and " Round((ET2 - ET1)/1000, 3) " seconds to format the function.`n`nWould you like to copy the functions to the clipboard?"
+	IfMsgBox, Yes
+		Clipboard := Bin_D
+}
+Return
+
+
+
+; AutoHotkey Version: AutoHotkey 1.1
+; Language:           English
+; Platform:           Win7 SP1 / Win8.1 / Win10
+; Author:             Antonio Bueno <user atnbueno of Google's popular e-mail service>
+; Short description:  Gets the URL of the current (active) browser tab for most modern browsers
+; Last Mod:           2016-05-19
+;https://autohotkey.com/boards/viewtopic.php?t=3702 -- atnbueno
+
+;Menu, Tray, Icon, % A_WinDir "\system32\netshell.dll", 86 ; Shows a world icon in the system tray
+
+
+^+!u::
+	nTime := A_TickCount
+	sURL := GetActiveBrowserURL()
+	WinGetClass, sClass, A
+	If (sURL != "")
+		MsgBox, % "The URL is """ sURL """`nEllapsed time: " (A_TickCount - nTime) " ms (" sClass ")"
+	Else If sClass In % ModernBrowsers "," LegacyBrowsers
+		MsgBox, % "The URL couldn't be determined (" sClass ")"
+	Else
+		MsgBox, % "Not a browser or browser not supported (" sClass ")"
+Return
+
+GetActiveBrowserURL() {
+	global ModernBrowsers, LegacyBrowsers
+	WinGetClass, sClass, A
+	If sClass In % ModernBrowsers
+		Return GetBrowserURL_ACC(sClass)
+	Else If sClass In % LegacyBrowsers
+		Return GetBrowserURL_DDE(sClass) ; empty string if DDE not supported (or not a browser)
+	Else
+		Return ""
+}
+
+; "GetBrowserURL_DDE" adapted from DDE code by Sean, (AHK_L version by maraskan_user)
+; Found at http://autohotkey.com/board/topic/17633-/?p=434518
+
+GetBrowserURL_DDE(sClass) {
+	WinGet, sServer, ProcessName, % "ahk_class " sClass
+	StringTrimRight, sServer, sServer, 4
+	iCodePage := A_IsUnicode ? 0x04B0 : 0x03EC ; 0x04B0 = CP_WINUNICODE, 0x03EC = CP_WINANSI
+	DllCall("DdeInitialize", "UPtrP", idInst, "Uint", 0, "Uint", 0, "Uint", 0)
+	hServer := DllCall("DdeCreateStringHandle", "UPtr", idInst, "Str", sServer, "int", iCodePage)
+	hTopic := DllCall("DdeCreateStringHandle", "UPtr", idInst, "Str", "WWW_GetWindowInfo", "int", iCodePage)
+	hItem := DllCall("DdeCreateStringHandle", "UPtr", idInst, "Str", "0xFFFFFFFF", "int", iCodePage)
+	hConv := DllCall("DdeConnect", "UPtr", idInst, "UPtr", hServer, "UPtr", hTopic, "Uint", 0)
+	hData := DllCall("DdeClientTransaction", "Uint", 0, "Uint", 0, "UPtr", hConv, "UPtr", hItem, "UInt", 1, "Uint", 0x20B0, "Uint", 10000, "UPtrP", nResult) ; 0x20B0 = XTYP_REQUEST, 10000 = 10s timeout
+	sData := DllCall("DdeAccessData", "Uint", hData, "Uint", 0, "Str")
+	DllCall("DdeFreeStringHandle", "UPtr", idInst, "UPtr", hServer)
+	DllCall("DdeFreeStringHandle", "UPtr", idInst, "UPtr", hTopic)
+	DllCall("DdeFreeStringHandle", "UPtr", idInst, "UPtr", hItem)
+	DllCall("DdeUnaccessData", "UPtr", hData)
+	DllCall("DdeFreeDataHandle", "UPtr", hData)
+	DllCall("DdeDisconnect", "UPtr", hConv)
+	DllCall("DdeUninitialize", "UPtr", idInst)
+	csvWindowInfo := StrGet(&sData, "CP0")
+	StringSplit, sWindowInfo, csvWindowInfo, `" ;"; comment to avoid a syntax highlighting issue in autohotkey.com/boards
+	Return sWindowInfo2
+}
+
+GetBrowserURL_ACC(sClass) {
+	global nWindow, accAddressBar
+	If (nWindow != WinExist("ahk_class " sClass)) ; reuses accAddressBar if it's the same window
+	{
+		nWindow := WinExist("ahk_class " sClass)
+		accAddressBar := GetAddressBar(Acc_ObjectFromWindow(nWindow))
+	}
+	Try sURL := accAddressBar.accValue(0)
+	If (sURL == "") {
+		WinGet, nWindows, List, % "ahk_class " sClass ; In case of a nested browser window as in the old CoolNovo (TO DO: check if still needed)
+		If (nWindows > 1) {
+			accAddressBar := GetAddressBar(Acc_ObjectFromWindow(nWindows2))
+			Try sURL := accAddressBar.accValue(0)
+		}
+	}
+	If ((sURL != "") and (SubStr(sURL, 1, 4) != "http")) ; Modern browsers omit "http://"
+		sURL := "http://" sURL
+	If (sURL == "")
+		nWindow := -1 ; Don't remember the window if there is no URL
+	Return sURL
+}
+
+; "GetAddressBar" based in code by uname
+; Found at http://autohotkey.com/board/topic/103178-/?p=637687
+
+GetAddressBar(accObj) {
+	Try If ((accObj.accRole(0) == 42) and IsURL(accObj.accValue(0)))
+		Return accObj
+	Try If ((accObj.accRole(0) == 42) and IsURL("http://" accObj.accValue(0))) ; Modern browsers omit "http://"
+		Return accObj
+	For nChild, accChild in Acc_Children(accObj)
+		If IsObject(accAddressBar := GetAddressBar(accChild))
+			Return accAddressBar
+}
+
+IsURL(sURL) {
+	Return RegExMatch(sURL, "^(?<Protocol>https?|ftp)://(?<Domain>(?:[\w-]+\.)+\w\w+)(?::(?<Port>\d+))?/?(?<Path>(?:[^:/?# ]*/?)+)(?:\?(?<Query>[^#]+)?)?(?:\#(?<Hash>.+)?)?$")
+}
+
+; The code below is part of the Acc.ahk Standard Library by Sean (updated by jethrow)
+; Found at http://autohotkey.com/board/topic/77303-/?p=491516
+
+Acc_Init()
+{
+	static h
+	If Not h
+		h:=DllCall("LoadLibrary","Str","oleacc","Ptr")
+}
+Acc_ObjectFromWindow(hWnd, idObject = 0)
+{
+	Acc_Init()
+	If DllCall("oleacc\AccessibleObjectFromWindow", "Ptr", hWnd, "UInt", idObject&=0xFFFFFFFF, "Ptr", -VarSetCapacity(IID,16)+NumPut(idObject==0xFFFFFFF0?0x46000000000000C0:0x719B3800AA000C81,NumPut(idObject==0xFFFFFFF0?0x0000000000020400:0x11CF3C3D618736E0,IID,"Int64"),"Int64"), "Ptr*", pacc)=0
+	Return ComObjEnwrap(9,pacc,1)
+}
+Acc_Query(Acc) {
+	Try Return ComObj(9, ComObjQuery(Acc,"{618736e0-3c3d-11cf-810c-00aa00389b71}"), 1)
+}
+Acc_Children(Acc) {
+	If ComObjType(Acc,"Name") != "IAccessible"
+		ErrorLevel := "Invalid IAccessible Object"
+	Else {
+		Acc_Init(), cChildren:=Acc.accChildCount, Children:=[]
+		If DllCall("oleacc\AccessibleChildren", "Ptr",ComObjValue(Acc), "Int",0, "Int",cChildren, "Ptr",VarSetCapacity(varChildren,cChildren*(8+2*A_PtrSize),0)*0+&varChildren, "Int*",cChildren)=0 {
+			Loop %cChildren%
+				i:=(A_Index-1)*(A_PtrSize*2+8)+8, child:=NumGet(varChildren,i), Children.Insert(NumGet(varChildren,i-8)=9?Acc_Query(child):child), NumGet(varChildren,i-8)=9?ObjRelease(child):
+			Return Children.MaxIndex()?Children:
+		} Else
+			ErrorLevel := "AccessibleChildren DllCall Failed"
+	}
+}
+
+
 ; Saves the current clipboard history to hard disk
 ExitSub:
-SetFormat, float, 06.0
-FileCreateDir, C:\tmp\ahkCliboardHistory
-;C:\tmp\ahkCliboardHistory\clipvar*.txt
-Loop %maxindex%
-{
-	zindex := SubStr("0000000000" . A_Index, -9)
-	thisclip := clipvar%A_Index%
-	FileAppend %thisclip%, C:\tmp\ahkCliboardHistory\clipvar%zindex%.bin
-}
-allWins .= (HiddenWins ? "|" : "") . HiddenWins
-allWins .= (HiddenWins2 ? "|" : "") . HiddenWins2
-allWins .= (HiddenWins3 ? "|" : "") . HiddenWins3
-FileAppend %allWins%, C:\tmp\ahkCliboardHistory\windowHist.txt
+	SetFormat, float, 06.0
+	FileCreateDir, C:\tmp\AppsKeyAHK
+	;C:\tmp\AppsKeyAHK\clipvar*.txt
+	Loop %maxindex%
+	{
+		zindex := SubStr("0000000000" . A_Index, -9)
+		thisclip := clipvar%A_Index%
+		FileAppend %thisclip%, C:\tmp\AppsKeyAHK\clipvar%zindex%.bin
+	}
+	allWins .= (HiddenWins ? "|" : "") . HiddenWins
+	allWins .= (HiddenWins2 ? "|" : "") . HiddenWins2
+	allWins .= (HiddenWins3 ? "|" : "") . HiddenWins3
+	FileAppend %allWins%, C:\tmp\AppsKeyAHK\windowHist.txt
 
-ExitApp ;end of clipboard
-
+	ExitApp ;end of clipboard
+return
