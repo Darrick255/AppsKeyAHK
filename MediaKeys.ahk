@@ -264,7 +264,7 @@ return
 	}
 return
 
-;Personal  Stuff End
+;Personal Stuff End
 ;****************************************************************************************************
 
 ;beggining of clipboard

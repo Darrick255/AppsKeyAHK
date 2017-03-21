@@ -85,7 +85,7 @@ There Have Also Been some addition for my own Specific work environment
 
 DOMO
 
-Ctrl+Shift+Q will parse a domo Ticket page to get "CLIENTID - Firstname Lastname" and put it on the clipboard. This attempts to put focus back in the editor.
+AppsKey+Q will parse a domo Ticket page to get "CLIENTID - Firstname Lastname" and put it on the clipboard. This attempts to put focus back in the editor.
 
 Credits
 
