@@ -778,31 +778,28 @@ Return
 Return
 
 
-$RButton::
+~$RButton::
 	KeyWait,LButton,DT0.3
 	If !ErrorLevel {
 		KeyWait,RButton
 		If GetKeyState("shift")
-{
-	 Loop Parse, HiddenWins, |
-			WinShow ahk_id %A_LoopField%
-	 HiddenWins =
-}
-else
-{
-	 MyWin := WinExist("A")
-	 if IsWindow(MyWin) 
-	 {
-			HiddenWins .= (HiddenWins ? "|" : "") . MyWin
-			WinHide ahk_id %MyWin%
-			GroupActivate All
-	 }
-}
-Return
+		{
+			Loop Parse, HiddenWins, |
+				WinShow ahk_id %A_LoopField%
+			HiddenWins =
+		}
+		else
+		{
+			MyWin := WinExist("A")
+			if IsWindow(MyWin) 
+			{
+				HiddenWins .= (HiddenWins ? "|" : "") . MyWin
+				WinHide ahk_id %MyWin%
+				GroupActivate All
+			}
+		}
+		Return
 	}
-	Send {RButton Down}
-	KeyWait,RButton
-	Send {RButton Up}
 Return
 
 AppsKey & r::
@@ -1412,6 +1409,7 @@ Return SubStr(H,P:=(((Z:=StrLen(ES))+(X:=StrLen(H))+StrLen(BS)-Z-X)?((T:=InStr(H
  <0)?(1):(BO))))?(T+BT):(X+1)):(1)),(N:=P+((Z)?((T:=InStr(H,ES,0,((EO)?(P+1):(0))))?(T-P+Z
  +(0-ET)):(X+P)):(X)))-P) ; v1.0-196c 21-Nov-2009 www.autohotkey.com/forum/topic51354.html
 }
+
 
 /*
 SetCase
