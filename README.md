@@ -117,3 +117,87 @@ https://autohotkey.com/board/topic/64481-include-virtually-any-file-in-a-script-
 
 Short description:  Gets the URL of the current (active) browser tab for most modern browsers
 https://autohotkey.com/boards/viewtopic.php?t=3702 -- atnbueno
+
+
+
+C code for findtext function
+
+
+```C
+
+/****** the C source code of machine code ******
+
+int __attribute__((__stdcall__)) findstr(int mode
+  , unsigned int c, int n, unsigned char * Bmp
+  , int Stride, int sx, int sy, int sw, int sh
+  , char * ss, char * text, int * s1, int * s0
+  , int w, int h, int err1, int err0
+  , int * rx, int * ry)
+{
+  int x, y, o=sy*Stride+sx*4, j=Stride-4*sw, i=0;
+  int r, g, b, rr, gg, bb, len1, len0, e1, e0;
+
+  if (mode==0)  // Color Mode
+  {
+    rr=(c>>16)&0xFF; gg=(c>>8)&0xFF; bb=c&0xFF;
+    for (y=0; y<sh; y++, o+=j)
+      for (x=0; x<sw; x++, o+=4, i++)
+      {
+        r=Bmp[2+o]; g=Bmp[1+o]; b=Bmp[o];
+        if ((r-rr)*((r>rr)*2-1)+(g-gg)*((g>gg)*2-1)
+          +(b-bb)*((b>bb)*2-1)<=n)
+            ss[i]='1';
+      }
+  }
+  else  // Gray Threshold Mode
+  {
+    c=(c+1)*1000;
+    for (y=0; y<sh; y++, o+=j)
+      for (x=0; x<sw; x++, o+=4, i++)
+        if (Bmp[2+o]*299+Bmp[1+o]*587+Bmp[o]*114<c)
+          ss[i]='1';
+  }
+
+  i=len1=len0=0;
+  for (y=0; y<h; y++)
+  {
+    for (x=0; x<w; x++)
+    {
+      if (text[i++]=='1')
+        s1[len1++]=y*sw+x;
+      else
+        s0[len0++]=y*sw+x;
+    }
+  }
+
+  w=sw-w+1; h=sh-h+1;
+  j=len1>len0 ? len1 : len0;
+  for (y=0; y<h; y++)
+  {
+    for (x=0; x<w; x++)
+    {
+      o=y*sw+x; e1=err1; e0=err0;
+      for (i=0; i<j; i++)
+      {
+        if (i<len1 && ss[o+s1[i]]!='1' && (--e1)<0)
+          goto NoMatch;
+        if (i<len0 && ss[o+s0[i]]!='0' && (--e0)<0)
+          goto NoMatch;
+      }
+      rx[0]=sx+x; ry[0]=sy+y;
+      return 1;
+      NoMatch:
+      continue;
+    }
+  }
+  rx[0]=-1; ry[0]=-1;
+  return 0;
+}
+
+*/
+
+
+;================= The End =================
+
+;
+```
