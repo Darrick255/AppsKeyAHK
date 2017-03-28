@@ -121,7 +121,15 @@ Menu MaximoMsgRe, Add, &No value for po siteid BMXAA7736E, MaxMenu
 
 ;******************************************************************************
 
+weblogicpass = temp
+weblogicpass := 
+if FileExist("C:\tmp\AppsKeyAHK\transfer.txt")
+{
+	FileRead weblogicpass, C:\tmp\AppsKeyAHK\transfer.txt
+	FileDelete C:\tmp\AppsKeyAHK\transfer.txt
+}
 
+MonitorSqOut()
 ;part of get url use: GetActiveBrowserURL()
 ModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,MozillaWindowClass,Slimjet_WidgetWin_1"
 LegacyBrowsers := "IEFrame,OperaWindowClass"
@@ -418,20 +426,27 @@ Return
 ;  return
 
 OnClipboardChange:
-	CurrentClipType = %A_EventInfo%
-	SetTimer, ReSetToolTip, 1000
+	;  CurrentClipType = %A_EventInfo%
+	;  SetTimer, ReSetToolTip, 1000
 If (IgnoreClipboardChange = False)
 {
-	
-	clipindex := maxindex
-	clipindex += 1
-	clipvar%clipindex% := clipboardAll
-	thisclip := clipvar%clipindex%
-	tooltip %clipindex% - %clipboard%
-	SetTimer, ReSetToolTip, 1000
-	if clipindex > %maxindex%
+	SetTitleMatchMode 2
+	IfWinNotActive, Microsoft Excel
+	;ahk_exe EXCEL.EXE ;https://autohotkey.com/docs/commands/WinActive.htm
+	;  Microsoft Excel - Book1
+	;  ahk_class XLMAIN
+	;  ahk_exe EXCEL.EXE
 	{
-		maxindex := clipindex
+		clipindex := maxindex
+		clipindex += 1
+		clipvar%clipindex% := clipboardAll
+		thisclip := clipvar%clipindex%
+		tooltip %clipindex% - %clipboard%
+		SetTimer, ReSetToolTip, 1000
+		if clipindex > %maxindex%
+		{
+			maxindex := clipindex
+		}
 	}
 }
 return
@@ -492,12 +507,12 @@ Return
 
 ;hotkey to activate ScreenShot(not ocr)
 ;alternate way of adding third hotkey https://autohotkey.com/docs/Hotkeys.htm
-;#if GetKeyState("Shift", "P")
-;  Appskey & Q::
-;  	getSelectionCoords(x_start, x_end, y_start, y_end)
-;  	;RunWait, C:\Capture2Text.exe %x_start% %y_start% %x_end% %y_end%
-;  	MsgBox, In area :: x_start: %x_start% --> x_end: %x_end% , y_start: %y_start% --> y_end: %y_end%`n`nFound Text:`n`n%clipboard%
-;  return
+Appskey & O::
+	getSelectionCoords(x_start, x_end, y_start, y_end)
+	OCR_Width := x_end - x_start
+	OCR_Height := y_end - y_start
+	RunWait, C:\Users\DFLETCH\Apps\Capture2Text\Capture2Text.exe %x_start% %y_start% %x_end% %y_end%
+return
 
 
 
@@ -513,7 +528,7 @@ MsgBox, 0, ,
 	t : Make 50`% transparent
 	T : Make fully Visible
 	v : Paste clipboard as plain text
-	w : Wrap tect at input value(70)
+	w : Wrap text at input value(70)
 	x : Power state menu
 	/ : RegEx replace
 	, : input tag and attributes. HTML Format
@@ -804,6 +819,7 @@ Return
 
 AppsKey & r::
 KeyWait AppsKey
+FileAppend %weblogicpass%, C:\tmp\AppsKeyAHK\transfer.txt
 IfWinActive %A_ScriptName%
 	 Send ^s ;Save
 Reload
@@ -1762,6 +1778,7 @@ getSelectionCoords(ByRef x_start, ByRef x_end, ByRef y_start, ByRef y_end) {
 		y_start := scan_y_end
 		y_end := scan_y_start
 	}
+
 }
 ;https://autohotkey.com/board/topic/5545-base64-coderdecoder/
 ;base 64 stuff Laszlo
@@ -1976,6 +1993,70 @@ Return
 	Else
 		MsgBox, % "Not a browser or browser not supported (" sClass ")"
 Return
+
+
+
+;Monitor Weblogic console for sqout
+;Maximo function
+MonitorSqOut() {
+	global weblogicpass
+	username = maxadmin
+    if (weblogicpass == "")
+		weblogicpass := SafeInput("Enter Weblogic Password", "maxadmin pass:")
+	wb := ComObjCreate("{D5E8041D-920F-45e9-B8FB-B1DEB82C6E5E}") ; create a InternetExplorerMedium instance from https://autohotkey.com/boards/viewtopic.php?t=21015
+	;  wb.Visible := True
+	wb.Navigate("https://pkdcmaxw01.westfrasertimber.ca:7002/console/console.portal?_nfpb=true&_pageLabel=JMSQueueMonitorBook&handle=com.bea.console.handles.JMXHandle%28%22com.bea%3AName%3Dsqout%2CType%3Dweblogic.j2ee.descriptor.wl.QueueBean%2CParent%3D%5Bmaximodomain%5D%2FJMSSystemResources%5Buijmsmodule%5D%2CPath%3DJMSResource%5Buijmsmodule%5D%2FQueues%5Bsqout%5D%22%29")
+	ComWait(wb)
+	wb.document.getElementByID("j_username").value := username
+	wb.document.getElementByID("j_password").value := weblogicpass
+	wb.document.forms[0].submit
+	ComWait(wb)
+	Name1 := wb.document.getElementByID("Name1").innerText
+	MessagesCurrentCount1 := wb.document.getElementByID("MessagesCurrentCount1").innerText
+	MessagesPendingCount1 := wb.document.getElementByID("MessagesPendingCount1").innerText
+	MessagesReceivedCount1 := wb.document.getElementByID("MessagesReceivedCount1").innerText
+	ConsumersCurrentCount1 := wb.document.getElementByID("ConsumersCurrentCount1").innerText
+	ConsumersHighCount1 := wb.document.getElementByID("ConsumersHighCount1").innerText
+	ConsumersTotalCount1 := wb.document.getElementByID("ConsumersTotalCount1").innerText
+	MessagesHighCount1 := wb.document.getElementByID("MessagesHighCount1").innerText
+	wb.quit()
+	FormatTime, TimeString,, dddd MMMM d, yyyy hh:mm:ss tt
+line =
+	(
+SqOutQueue infor at %TimeString%
+Name1 =  %Name1%
+MessagesCurrentCount1 = %MessagesCurrentCount1%
+MessagesPendingCount1 = %MessagesPendingCount1%
+MessagesReceivedCount1 = %MessagesReceivedCount1%
+ConsumersCurrentCount1 = %ConsumersCurrentCount1%
+ConsumersHighCount1 = %ConsumersHighCount1%
+ConsumersTotalCount1 = %ConsumersTotalCount1%
+MessagesHighCount1 = %MessagesHighCount1% `n
+	)
+	SetTimer, ReSetToolTip, Off
+	FileAppend %Line%, C:\tmp\AppsKeyAHK\SqOutQueueHist.txt
+	if(MessagesCurrentCount1 <> "")
+	{
+		SetTimer, MonitorSqOut, % 5 * 1000 * 60
+		; r MsgBox, Reloaded monitor
+	}
+	if (MessagesCurrentCount1 > 50 and MessagesCurrentCount1 < 100 )
+	{
+		tooltip Message In SqOutQueue is at %MessagesCurrentCount1%
+		SetTimer, ReSetToolTip, 4000
+	}
+	if (MessagesCurrentCount1 >= 100)
+		tooltip, Message In SqOutQueue is at %MessagesCurrentCount1%
+		SetTimer, ReSetToolTip, 180000
+
+Return
+}
+
+ComWait(IE) {
+While IE.readyState != 4 || IE.document.readyState != "complete" || IE.busy
+   Sleep 300
+   Sleep 300
+}
 
 GetActiveBrowserURL() {
 	global ModernBrowsers, LegacyBrowsers
