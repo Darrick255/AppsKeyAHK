@@ -143,17 +143,25 @@ clipindex :=0
 IgnoreClipboardChange := True
 if(IgnoreClipboardChange = True)
 {
-	Loop C:\tmp\AppsKeyAHK\clipvar*.bin
-	{
-		clipindex += 1
-		;  MsgBox, %clipindex% load
-		FileRead clipvar%A_Index%, *c %A_LoopFileFullPath%
-		FileDelete %A_LoopFileFullPath%
-	}
-	sleep 100 ;why this fixes the double entry of the last value i have no idea.
+	;  Loop C:\tmp\AppsKeyAHK\clipvar*.bin
+	;  {
+	;  	clipindex += 1
+	;  	;  MsgBox, %clipindex% load
+	;  	FileRead clipvar%A_Index%, *c %A_LoopFileFullPath%
+	;  	FileDelete %A_LoopFileFullPath%
+	;  }
+	;  sleep 100 ;why this fixes the double entry of the last value i have no idea.
 	FileRead HiddenWins, C:\tmp\AppsKeyAHK\windowHist.txt
 	FileDelete C:\tmp\AppsKeyAHK\windowHist.txt
-	maxindex := clipindex
+	;  maxindex := clipindex
+		FileRead MaxIndex, C:\tmp\AppsKeyAHK\AppsKeyClipData.bin
+	Loop %MaxIndex%
+	{
+		zindex := SubStr("0000000000" . A_Index, -9)
+		FileRead clipvar%A_Index%, *c C:\tmp\AppsKeyAHK\AppsKeyClipData.bin:ClipStream%zindex%:$DATA
+	}
+	clipindex := maxindex
+	;FileDelete C:\tmp\AppsKeyAHK\AppsKeyClipData.bin
 }
 OnExit ExitSub
 IgnoreClipboardChange := False
@@ -441,7 +449,8 @@ If (IgnoreClipboardChange = False)
 		clipindex += 1
 		clipvar%clipindex% := clipboardAll
 		thisclip := clipvar%clipindex%
-		tooltip %clipindex% - %clipboard%
+		tooltiptext := SubStr(clipboard, 1, 1500)
+		tooltip %clipindex% - %tooltiptext%
 		SetTimer, ReSetToolTip, 1000
 		if clipindex > %maxindex%
 		{
@@ -2175,11 +2184,19 @@ ExitSub:
 	SetFormat, float, 06.0
 	FileCreateDir, C:\tmp\AppsKeyAHK
 	;C:\tmp\AppsKeyAHK\clipvar*.txt
+	;  Loop %maxindex%
+	;  {
+	;  	zindex := SubStr("0000000000" . A_Index, -9)
+	;  	thisclip := clipvar%A_Index%
+	;  	FileAppend %thisclip%, C:\tmp\AppsKeyAHK\clipvar%zindex%.bin
+	;  }
+	FileDelete C:\tmp\AppsKeyAHK\AppsKeyClipData.bin
+	FileAppend %maxindex%, C:\tmp\AppsKeyAHK\AppsKeyClipData.bin
 	Loop %maxindex%
 	{
 		zindex := SubStr("0000000000" . A_Index, -9)
 		thisclip := clipvar%A_Index%
-		FileAppend %thisclip%, C:\tmp\AppsKeyAHK\clipvar%zindex%.bin
+		FileAppend %thisclip%, C:\tmp\AppsKeyAHK\AppsKeyClipData.bin:ClipStream%zindex%:$DATA
 	}
 	;  allWins .= (HiddenWins ? "|" : "") . HiddenWins
 	;  allWins .= (HiddenWins2 ? "|" : "") . HiddenWins2
