@@ -505,7 +505,7 @@ Return
 ;AppsKey & Shift & Down::MouseMove, 0, 1, 0, R
 
 
-;hotkey to activate ScreenShot(not ocr)
+;hotkey to activate ocr
 ;alternate way of adding third hotkey https://autohotkey.com/docs/Hotkeys.htm
 Appskey & O::
 	getSelectionCoords(x_start, x_end, y_start, y_end)
@@ -2449,4 +2449,17 @@ bit2base64(s) {
   }
   ListLines, On
   Return, s
+}
+
+SendEmail(ToAddress, subject ="No Subject", Body = "Automated Message: No Content", send=False )
+{
+	m := ComObjCreate("Outlook.Application").CreateItem(0)
+	m.Subject := subject
+	m.To := ToAddress
+	m.Body := Body
+	if (Send = True)
+		m.Send ;to automatically send and CLOSE that new email window...  
+	else 
+		m.Display ;to display the email message...and the really cool part, if you leave this line out, it will not show the window............... but the m.send below will still send the email!!!
+	return
 }
