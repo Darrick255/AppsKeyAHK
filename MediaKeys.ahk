@@ -997,10 +997,13 @@ if (IgnoreClipboardChange = True)
 Return
 
 MaxMenu:
+	if (A_ThisMenu == "MaximoMsgRe")
+		lastMaxAction := A_ThisMenuItemPos
 	IgnoreClipboardChange := True
 	if (IgnoreClipboardChange = True)
 	{
-		If (A_ThisMenuItemPos = 1)
+		Msgbox, %lastMaxAction%
+		If (lastMaxAction = 1)
 		{
 			WinGetTitle, CurrentTitle, A
 			TicketTitle = Message Reprocessing
@@ -1025,7 +1028,7 @@ MaxMenu:
 			IgnoreClipboardChange := False
 		return
 		}
-		Else if (A_thismenuitempos = 2)
+		Else if (lastMaxAction = 2)
 		{
 						IgnoreClipboardChange := True
 			;BMXAA1993E - no matching reciept
@@ -1071,7 +1074,7 @@ MaxMenu:
 		IgnoreClipboardChange := False			
 		return
 		}
-		Else if (A_thismenuitempos = 3)
+		Else if (lastMaxAction = 3)
 		{
 			
 			IgnoreClipboardChange := True
