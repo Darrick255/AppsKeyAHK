@@ -117,6 +117,9 @@ Menu Case, Add, &8 Remove Duplicates, CCase
 Menu MaximoMsgRe, Add, &Payroll History make sql for history, MaxMenu
 Menu MaximoMsgRe, Add, &Sum of Invoices BMXAA1993/1981E, MaxMenu
 Menu MaximoMsgRe, Add, &No value for po siteid BMXAA7736E, MaxMenu
+Menu MaximoMsgRe, Add,
+Menu MaximoMsgRe, Add, &Monitor Sqoutfunc, MaxMenu
+
 
 
 ;******************************************************************************
@@ -238,7 +241,7 @@ Appskey & Q::
 	IgnoreClipboardChange := True
 	WinGetTitle, CurrentTitle, A
 	TicketTitle = DOMO`: Ticket#`:
-	If (InStr(CurrentTitle, TicketTitle, 0,1) and IgnoreClipboardChange = True)
+	If (InStr(CurrentTitle, TicketTitle, 0,1) and IgnoreClipboardChange)
 	{
 		Send,{Shift Up}{Ctrl Up}
 		Send, {Tab}{Ctrl Down}a{Ctrl Up}
@@ -306,6 +309,91 @@ IgnoreClipboardChange:=True
 	 Menu MaximoMsgRe, Show
 Return
 
+AppsKey & `;::
+Text:=""    ; You Can Add OCR Text In The <>
+Text.="|<>*188$54.00A00000000Q000000zzz000600U1T000900U3S000KU0U6w000jE0UAs000jc0UNs000To0Unc000Hu0Ub8000Hx0V68003nzUVA80020TkXs80020TsXU8003nzwU08000GDyU08000K7zU3s000S3kU2M00001kU2k00000kU3U00000Ezz0000000U"
+; Note: parameters of the X,Y is the center of the coordinates,
+; and the W,H is the offset distance to the center,
+; So the search range is (X-W, Y-H)-->(X+W, Y+H).
+
+if ok:=FindText(3130,381,150000,150000,0,0,Text)
+{
+	For index, value in ok
+		MsgBox % "Item " index " is '" value "'"
+	CoordMode, Mouse
+	X:=ok.1, Y:=ok.2, W:=ok.3, H:=ok.4, OCR:=ok.5
+	MouseMove, X+W//2, Y+H//2
+	sleep 1000
+	MouseMove, X, Y
+	SysGet, VirtualWidth, 78
+	SysGet, VirtualHeight, 79
+	findTopX := X + W 
+	findTopY := Y + H 
+	;  findx := ((VirtualWidth - findTopX) / 2) + findTopX
+	findx := X
+	findy := ((VirtualHeight - findTopY) / 2) + findTopY
+	findw := (VirtualWidth - findTopX) / 2
+	findh := (VirtualHeight - findTopY) / 2
+	sleep 1000
+	MouseMove, findx,findy
+}
+	if ok:=FindText(findx,findy,findw,findh,0,0,Text)
+	{
+		For index, value in ok
+			MsgBox % "Item " index " is '" value "'"
+	CoordMode, Mouse
+	X:=ok.1, Y:=ok.2, W:=ok.3, H:=ok.4, OCR:=ok.5
+	MouseMove, X+W//2, Y+H//2
+	}
+;  listvars
+;  Msgbox % ok[2].5
+return
+
+FindTextAll(x,y,w,h,err1,err0,text){
+	done = False
+	While !Done{
+		if ok := FindText(x,y,w,h,err1,err0,text){
+			FoundList[A_Index] := ok
+			;  Gui, Show, W%ok.3% H%ok.4% X%ok.1% Y%ok.2%
+
+		}else{
+			Done := True
+		}
+	}
+	return FoundList
+
+}
+Appskey & u::
+Text:=""
+Text.="|<>*188$54.00A00000000Q000000zzz000600U1T000900U3S000KU0U6w000jE0UAs000jc0UNs000To0Unc000Hu0Ub8000Hx0V68003nzUVA80020TkXs80020TsXU8003nzwU08000GDyU08000K7zU3s000S3kU2M00001kU2k00000kU3U00000Ezz0000000U"
+	done  := False
+	Count := 0
+	While (!Done){
+		;  msgbox, test
+		if ok:=FindText(3130,381,150000,150000,0,0,Text){
+			Count := Count+1
+			FoundList[A_Index] := ok
+			X:=ok.1, Y:=ok.2, W:=ok.3, H:=ok.4
+			Gui, %Count%:New
+			Gui, -Caption +AlwaysOnTop
+			Gui, color, Teal
+			Gui, Show, W%W% H%H% X%X% Y%Y% NA 
+
+		}else{
+			Done := True
+		}
+	}
+	loop, Count
+		Gui, %A_Index%: Destroy
+return
+
+AppsKey & p::
+	SysGet, VirtualWidth, 78
+	SysGet, VirtualHeight, 79
+	MouseGetPos, xpos, ypos 
+	tooltip, The cursor is at X%xpos% Y%ypos%`n%A_ScreenWidth%w h%A_ScreenHeight%`n%VirtualWidth%w h%VirtualHeight%. 
+	SetTimer, ReSetToolTip, 1000
+return 
 
 ;Personal Stuff End
 ;****************************************************************************************************
@@ -366,14 +454,17 @@ Return
 	IgnoreClipboardChange := False
 Return
 
+
+
 ;Paste And move Forward one
-^+V::
+^+E::
 	IgnoreClipboardChange := True
 	if (IgnoreClipboardChange = True)
 	{
 		Send, {Shift Up}{Ctrl Up}{V Up}
 		Send ^v
 		Send, {Shift Down}{Ctrl Down}
+	sleep 100
 		if (clipindex < maxindex)
 		{
 			clipindex += 1
@@ -385,6 +476,27 @@ Return
 		Sleep repeatTimer
 	}
 	IgnoreClipboardChange := False
+return
+
+
+;paste plain text
+^+V::
+	IgnoreClipboardChange := True
+	if (IgnoreClipboardChange)
+	{
+		clipboard = %clipboard%
+		;  Send, {Shift Up}{Ctrl Up}{V Up}
+		Send ^v
+		;  Send, {Shift Down}{Ctrl Down}
+		sleep 50
+		thisclip := clipvar%clipindex%
+		clipboard := thisclip
+		tooltip %clipindex% - %clipboard%
+		SetTimer, ReSetToolTip, 1000
+		Sleep repeatTimer
+	}
+	IgnoreClipboardChange := False
+	
 Return
 
 ^+1::
@@ -436,7 +548,7 @@ Return
 OnClipboardChange:
 	;  CurrentClipType = %A_EventInfo%
 	;  SetTimer, ReSetToolTip, 1000
-If (IgnoreClipboardChange = False)
+If (!IgnoreClipboardChange)
 {
 	SetTitleMatchMode 2
 	IfWinNotActive, Microsoft Excel
@@ -474,15 +586,14 @@ return
 
 ;load into clipboard history
 ^+Z::
-GetText(TempText)
-TempText2 := ""
-clipindex := maxindex
-Loop, parse, TempText, `n, `r  ; Specifying `n prior to `r allows both Windows and Unix files to be parsed.
-{
-	clipindex += 1
-	clipvar%clipindex% := A_LoopField
-}
-lineCount:= clipindex-maxindex
+	GetText(TempText)
+	clipindex := maxindex
+	lineCount := clipindex
+	Loop, parse, TempText, `n, `r  ; Specifying `n prior to `r allows both Windows and Unix files to be parsed.
+	{	
+		clipindex += 1
+		clipvar%clipindex% := A_LoopField
+	}
 	tooltip %clipindex%(total) - %lineCount% lines have been Appened to Clipboard History `r`n %TempText%
 	SetTimer, ReSetToolTip, 2500
 	maxindex := clipindex
@@ -828,6 +939,7 @@ Return
 
 AppsKey & r::
 KeyWait AppsKey
+FileDelete C:\tmp\AppsKeyAHK\transfer.txt
 FileAppend %weblogicpass%, C:\tmp\AppsKeyAHK\transfer.txt
 IfWinActive %A_ScriptName%
 	 Send ^s ;Save
@@ -905,7 +1017,7 @@ Return LIST, DllCall( "SetLastError", "UInt",nTTL )
 ;******************************************************************************
 CCase:
 IgnoreClipboardChange := True
-if (IgnoreClipboardChange = True)
+if (IgnoreClipboardChange)
 {
 	If (A_ThisMenuItemPos = 1)
 		StringUpper, TempText, TempText
@@ -1008,15 +1120,15 @@ Return
 MaxMenu:
 	if (A_ThisMenu == "MaximoMsgRe")
 		lastMaxAction := A_ThisMenuItemPos
+	;  Msgbox, %lastMaxAction%
 	IgnoreClipboardChange := True
 	if (IgnoreClipboardChange = True)
 	{
-		Msgbox, %lastMaxAction%
 		If (lastMaxAction = 1)
 		{
 			WinGetTitle, CurrentTitle, A
 			TicketTitle = Message Reprocessing
-			If (InStr(CurrentTitle, TicketTitle, 0,1) and IgnoreClipboardChange = True)
+			If (InStr(CurrentTitle, TicketTitle, 0,1) and IgnoreClipboardChange)
 			{
 				Send,{Shift Up}{Ctrl Up}
 				Send, {Ctrl Down}a{Ctrl Up}
@@ -1060,13 +1172,12 @@ MaxMenu:
 				;  	IgnoreClipboardChange := False	
 				;  	return
 				;  }
-				  Loop, Parse, TempText, `n, `r
+				Loop, Parse, TempText, `n, `r
 					{
 						RegExMatch(A_LoopField,"<LINECOST>(.*?)</LINECOST>",TempLineCost)
 						allLineCost .= (TempLineCost1 ? "|" : "") . TempLineCost1
 						;Msgbox, %TempLineCost1%
 						lineCostSum += TempLineCost1
-
 					}
 					if (lineCostSum > 0 and TempDocType1 <> "CREDIT")
 						{
@@ -1141,6 +1252,10 @@ MaxMenu:
 			}
 		IgnoreClipboardChange := False			
 		return
+		} else if (lastMaxAction = 5)
+		{
+			MonitorSqOut()
+			return
 		}
 	}
 	IgnoreClipboardChange := False
@@ -1273,7 +1388,7 @@ GetText(ByRef MyText = "")
 		Clipboard := SavedClip
 	}
 	IgnoreClipboardChange := False
-	Return MyText
+		Return MyText
 }
 
 ; Pastes text from a variable while preserving the clipboard.
@@ -2045,21 +2160,23 @@ ConsumersHighCount1 = %ConsumersHighCount1%
 ConsumersTotalCount1 = %ConsumersTotalCount1%
 MessagesHighCount1 = %MessagesHighCount1% `n
 	)
-	SetTimer, ReSetToolTip, Off
+	SetTimer, MonitorSqOut, Off
 	FileAppend %Line%, C:\tmp\AppsKeyAHK\SqOutQueueHist.txt
 	if(MessagesCurrentCount1 <> "")
 	{
 		SetTimer, MonitorSqOut, % 5 * 1000 * 60
 		; r MsgBox, Reloaded monitor
 	}
-	if (MessagesCurrentCount1 > 50 and MessagesCurrentCount1 < 100 )
+	if (MessagesCurrentCount1 >= 0 and MessagesCurrentCount1 < 100 )
 	{
-		tooltip Message In SqOutQueue is at %MessagesCurrentCount1%
+		tooltip, Message In SqOutQueue is at %MessagesCurrentCount1%`n`n%line%
 		SetTimer, ReSetToolTip, 4000
 	}
 	if (MessagesCurrentCount1 >= 100)
-		tooltip, Message In SqOutQueue is at %MessagesCurrentCount1%
+	{
+		tooltip, Message In SqOutQueue is at %MessagesCurrentCount1%`n`n%line%
 		SetTimer, ReSetToolTip, 180000
+	}
 
 Return
 }
