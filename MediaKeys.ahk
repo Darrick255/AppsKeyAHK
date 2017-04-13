@@ -133,6 +133,7 @@ if FileExist("C:\tmp\AppsKeyAHK\transfer.txt")
 }
 
 MonitorSqOut()
+;  MsgRepSQout()
 ;part of get url use: GetActiveBrowserURL()
 ModernBrowsers := "ApplicationFrameWindow,Chrome_WidgetWin_0,Chrome_WidgetWin_1,Maxthon3Cls_MainFrm,MozillaWindowClass,Slimjet_WidgetWin_1"
 LegacyBrowsers := "IEFrame,OperaWindowClass"
@@ -252,7 +253,7 @@ Appskey & Q::
 		ClientLname := SubStr(Temptext, inStr(TempText, "Last Name") + 10, inStr(TempText, "Payroll Status") - inStr(TempText, "Last Name") - 10)
 		ClientFname := st_setCase(ClientFname, "t")
 		ClientLname := st_setCase(ClientLname, "t")
-		TempText := ClientID " - " ClientFname " " ClientLname " "
+		TempText := ClientID "- " ClientFname " " ClientLname " "
 		StringReplace,TempText,TempText,`n,,A
 		StringReplace,TempText,TempText,`r,,A
 		IgnoreClipboardChange := False
@@ -293,6 +294,17 @@ return
 	{
 		Send, {BackSpace}{BackSpace}
 		SendInput, Work Order Tracking
+		sleep 100
+		send, {Down} {Down} {Enter}
+		
+	}
+return
+:B0:as::
+	sURL := GetActiveBrowserURL()
+	if((A_EndChar == "`n")  and InStr(sURL ,"kdcmaxw0", 0,1))
+	{
+		Send, {BackSpace}{BackSpace}
+		SendInput, Automation Script
 		sleep 100
 		send, {Down} {Down} {Enter}
 		
@@ -632,6 +644,8 @@ Appskey & O::
 	OCR_Width := x_end - x_start
 	OCR_Height := y_end - y_start
 	RunWait, C:\Users\DFLETCH\Apps\Capture2Text\Capture2Text.exe %x_start% %y_start% %x_end% %y_end%
+	tooltip, OCR DONE`n`n%clipboard%
+	settimer, ReSetToolTip, 2500
 return
 
 
@@ -749,97 +763,97 @@ SendMessage, 0x112, 0xF170, 1,, Program Manager
 Return
 
 AppsKey & t::
-If NOT IsWindow(WinExist("A"))
-	 Return
-If GetKeyState("shift")
-	 Winset, Transparent, OFF, A
-else
+	If NOT IsWindow(WinExist("A"))
+		Return
+	If GetKeyState("shift")
+		Winset, Transparent, OFF, A
+	else
 	 Winset, Transparent, 128, A
 Return
 
 AppsKey & v::
-TempText := ClipBoard
-If (TempText != "")
+	TempText := ClipBoard
+	If (TempText != "")
 	 PutText(ClipBoard)
 Return
 
 AppsKey & w::
-GetText(TempText)
-If NOT WrapWidth
-	 WrapWidth := "70"
-If GetKeyState("shift")
-	 StringReplace TempText, TempText, %A_Space%`r`n, %A_Space%, All
-else
-{
-	 Temp2 := SafeInput("Enter Width", "Width:", WrapWidth)
-	 If ErrorLevel
-			Return
-	 WrapWidth := Temp2
-	 Temp2 := "(?=.{" . WrapWidth + 1 . ",})(.{1," . WrapWidth - 1 . "}[^ ]) +"
-	 TempText := RegExReplace(TempText, Temp2, "$1 `r`n")
-}
-PutText(TempText)
+	GetText(TempText)
+	If NOT WrapWidth
+		WrapWidth := "70"
+	If GetKeyState("shift")
+		StringReplace TempText, TempText, %A_Space%`r`n, %A_Space%, All
+	else
+	{
+		Temp2 := SafeInput("Enter Width", "Width:", WrapWidth)
+		If ErrorLevel
+				Return
+		WrapWidth := Temp2
+		Temp2 := "(?=.{" . WrapWidth + 1 . ",})(.{1," . WrapWidth - 1 . "}[^ ]) +"
+		TempText := RegExReplace(TempText, Temp2, "$1 `r`n")
+	}
+	PutText(TempText)
 Return
 
 AppsKey & x::
-SplashImage, , MC01, (S) Shutdown`n(R) Restart`n(L) Log Off`n(H) Hibernate`n(P) Power Saving Mode`n`nPress ESC to cancel., Press A Key:, Shutdown?, Courier New
-Input TempText, L1
-SplashImage, Off
-If (TempText = "S")
-	 ShutDown 8
-Else If (TempText = "R")
-	 ShutDown 2
-Else If (TempText = "L")
-	 ShutDown 0
-Else If (TempText = "H")
-	 DllCall("PowrProf\SetSuspendState", "int", 1, "int", 0, "int", 0)
-Else If (TempText = "P")
+	SplashImage, , MC01, (S) Shutdown`n(R) Restart`n(L) Log Off`n(H) Hibernate`n(P) Power Saving Mode`n`nPress ESC to cancel., Press A Key:, Shutdown?, Courier New
+	Input TempText, L1
+	SplashImage, Off
+	If (TempText = "S")
+		ShutDown 8
+	Else If (TempText = "R")
+		ShutDown 2
+	Else If (TempText = "L")
+		ShutDown 0
+	Else If (TempText = "H")
+		DllCall("PowrProf\SetSuspendState", "int", 1, "int", 0, "int", 0)
+	Else If (TempText = "P")
 	 DllCall("PowrProf\SetSuspendState", "int", 0, "int", 0, "int", 0)
 Return
 
 AppsKey & /::
-; RegEx Replace
-TempText := SafeInput("Enter Pattern", "RegEx Pattern:", REPatern)
-If ErrorLevel
-	 Return
-Temp2 := SafeInput("Enter Replacement", "Replacement:", REReplacement)
-If ErrorLevel
-	 Return
-REPatern := TempText
-REReplacement := Temp2
-GetText(TempText)
-TempText := RegExReplace(TempText, REPatern, REReplacement)
-PutText(TempText)
+	; RegEx Replace
+	TempText := SafeInput("Enter Pattern", "RegEx Pattern:", REPatern)
+	If ErrorLevel
+		Return
+	Temp2 := SafeInput("Enter Replacement", "Replacement:", REReplacement)
+	If ErrorLevel
+		Return
+	REPatern := TempText
+	REReplacement := Temp2
+	GetText(TempText)
+	TempText := RegExReplace(TempText, REPatern, REReplacement)
+	PutText(TempText)
 Return
 
 AppsKey & ,::
-TempText := SafeInput("Enter Tag", "Example: a href=""http://www.autohotkey.com/""", HTFormat)
-If ErrorLevel
-	 Return
-If SubStr(TempText, 1, 4) = "http"
-	 TempText = a href="%TempText%"
-HTFormat := TempText
-GetText(Temp2)
-Temp2 := "<" . TempText . ">" . Temp2
-TempText := RegExReplace(TempText, " .*")
-Temp2 := Temp2 . "</" . TempText . ">"
-PutText(Temp2)
+	TempText := SafeInput("Enter Tag", "Example: a href=""http://www.autohotkey.com/""", HTFormat)
+	If ErrorLevel
+		Return
+	If SubStr(TempText, 1, 4) = "http"
+		TempText = a href="%TempText%"
+	HTFormat := TempText
+	GetText(Temp2)
+	Temp2 := "<" . TempText . ">" . Temp2
+	TempText := RegExReplace(TempText, " .*")
+	Temp2 := Temp2 . "</" . TempText . ">"
+	PutText(Temp2)
 Return
 
 AppsKey & [::
-TempText := SafeInput("Enter Tag", "Example: color=red", BBFormat)
-If ErrorLevel
-	 Return
-If SubStr(TempText, 1, 4) = "http"
-	 TempText = url=%TempText%
-BBFormat := TempText
-GetText(Temp2)
-If SubStr(TempText, 1, 4) = "list" AND NOT InStr(Temp2, "[*]")
-	 Temp2 := RegExReplace(Temp2, "m`a)^(\*\s*)?", "[*]")
-Temp2 := "[" . TempText . "]" . Temp2
-TempText := RegExReplace(TempText, "=.*")
-Temp2 := Temp2 . "[/" . TempText . "]"
-PutText(Temp2)
+	TempText := SafeInput("Enter Tag", "Example: color=red", BBFormat)
+	If ErrorLevel
+		Return
+	If SubStr(TempText, 1, 4) = "http"
+		TempText = url=%TempText%
+	BBFormat := TempText
+	GetText(Temp2)
+	If SubStr(TempText, 1, 4) = "list" AND NOT InStr(Temp2, "[*]")
+		Temp2 := RegExReplace(Temp2, "m`a)^(\*\s*)?", "[*]")
+	Temp2 := "[" . TempText . "]" . Temp2
+	TempText := RegExReplace(TempText, "=.*")
+	Temp2 := Temp2 . "[/" . TempText . "]"
+	PutText(Temp2)
 Return
 
 AppsKey & .::
@@ -1181,6 +1195,15 @@ MaxMenu:
 					}
 					if (lineCostSum > 0 and TempDocType1 <> "CREDIT")
 						{
+							Text:=""    ; You Can Add OCR Text In The <>
+							Text.="|<CANCEL>*160$71.00000000000C00000000000Q00000000000s00000000001k00000000003U0000000000700000000000C00000000000Q00000000000s00000000001k00000000003U0000000000700000000000C00008000000S0000E000000swwsQU000001l99F90000003VmG3u0000007YYY44000000D99+9c000000QTGQCE000000s00000000001k00000000003U0000000000700000000000D"
+							if ok:=FindText(3273,839,150000,150000,0,0,Text)
+							{
+								CoordMode, Mouse
+								X:=ok.1, Y:=ok.2, W:=ok.3, H:=ok.4, OCR:=ok.5
+								MouseMove, X+W//2, Y+H//2
+								MouseClick, left
+							}
 							tooltip, Positive LineCost Found do not delete`n`ndoctype= %TempDocType1%`n`nLinecost = %lineCostSum%`nAll lines: %allLineCost%`n`n`, %A_LoopField%.
 							settimer, ReSetToolTip, 3000
 							IgnoreClipboardChange := False	
@@ -1188,6 +1211,25 @@ MaxMenu:
 						}
 
 				; Msgbox, %lineCostSum% and %allLineCost%
+			}
+			Text:=""    ; You Can Add OCR Text In The <>
+			Text.="|<CANCEL>*160$71.00000000000C00000000000Q00000000000s00000000001k00000000003U0000000000700000000000C00000000000Q00000000000s00000000001k00000000003U0000000000700000000000C00008000000S0000E000000swwsQU000001l99F90000003VmG3u0000007YYY44000000D99+9c000000QTGQCE000000s00000000001k00000000003U0000000000700000000000D"
+			if ok:=FindText(3273,839,150000,150000,0,0,Text)
+			{
+				CoordMode, Mouse
+				X:=ok.1, Y:=ok.2, W:=ok.3, H:=ok.4, OCR:=ok.5
+				MouseMove, X+W//2, Y+H//2
+				MouseClick, left
+			}
+			sleep 500
+			Text:=""    ; You Can Add OCR Text In The <>
+			Text.="|<CHECKBOX>*236$31.zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzy03zzz01zzzU0zzzk0Tzzs0Dzzw07zzy03zzz01zzzU0zzzk0Tzzs0Dzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzk"
+			if ok:=FindText(2183,838,150000,150000,0,0,Text)
+			{
+				CoordMode, Mouse
+				X:=ok.1, Y:=ok.2, W:=ok.3, H:=ok.4, OCR:=ok.5
+				MouseMove, X+W//2, Y+H//2
+				MouseClick, left
 			}
 			tooltip, This One Can be Deleted`nDELETE ME`n`nDELETE OKAY`n`ndoctype= %TempDocType1%`n`nLinecost = %lineCostSum%`nAll lines: %allLineCost%
 			settimer, ReSetToolTip, 3000
@@ -1203,6 +1245,16 @@ MaxMenu:
 			TicketTitle = Message Reprocessing
 			If (InStr(CurrentTitle, TicketTitle, 0,1) and IgnoreClipboardChange = True)
 			{
+				;  Text:=""    ; You Can Add OCR Text In The <>
+				;  Text.="|<>*189$41.000000000000000001U0000070000TzzU000U1T000106w00020Pk00041b000086S0000ENo0000Ubc00012AE00024kU0004T100008s20000E040000U08000107k000209U00040K000080s0000TzU0000000000000001"
+				;  if ok:=FindText(3112,380,150000,150000,0,0,Text)
+				;  {
+				;  CoordMode, Mouse
+				;  X:=ok.1, Y:=ok.2, W:=ok.3, H:=ok.4, OCR:=ok.5
+				;  MouseMove, X+W//2, Y+H//2
+				;  MouseClick, left
+				;  }
+				;  sleep 200
 				Send,{Shift Up}{Ctrl Up}
 				Send, {Ctrl Down}a{Ctrl Up}
 				GetText(TempText)
@@ -2167,7 +2219,7 @@ MessagesHighCount1 = %MessagesHighCount1% `n
 		SetTimer, MonitorSqOut, % 5 * 1000 * 60
 		; r MsgBox, Reloaded monitor
 	}
-	if (MessagesCurrentCount1 >= 0 and MessagesCurrentCount1 < 100 )
+	if (MessagesCurrentCount1 >= 20 and MessagesCurrentCount1 < 100 )
 	{
 		tooltip, Message In SqOutQueue is at %MessagesCurrentCount1%`n`n%line%
 		SetTimer, ReSetToolTip, 4000
@@ -2181,6 +2233,30 @@ MessagesHighCount1 = %MessagesHighCount1% `n
 Return
 }
 
+;  MsgRepSQout(){
+;  	maxpass := SafeInput("Enter Maximo Password", "Maximo pass:")
+;  	maxWeb := ComObjCreate("{D5E8041D-920F-45e9-B8FB-B1DEB82C6E5E}") ; create a InternetExplorerMedium instance from https://autohotkey.com/boards/viewtopic.php?t=21015
+;  	maxWeb.Visible := True
+;  	;  maxWeb.Navigate("https://pkdcmaxw01.westfrasertimber.ca:7002/DefaultWebApp/")
+;  	maxWeb.Navigate("https://pkdcmaxw05.westfrasertimber.ca:7012/maximo/ui/?event=loadapp&value=interror")
+;  	ComWait(maxWeb)
+;  	maxWeb.document.getElementByID("j_username").value := "DFLETCH"
+;  	maxWeb.document.getElementByID("j_password").value := maxpass
+;  	maxWeb.document.forms[0].submit()
+;  	ComWait(maxWeb)
+;  	sleep 1000
+;  	ControlSend, Internet Explorer_Server, {Ctrl down}z{Ctrl up}, Message Reprocessing - Internet Explorer
+;  	sleep 250
+;  	ControlSend, Internet Explorer_Server, {tab}, Message Reprocessing - Internet Explorer
+;  	sleep 250
+;  	ControlSend, Internet Explorer_Server, sqout, Message Reprocessing - Internet Explorer
+;  	sleep 250
+;  	ControlSend, Internet Explorer_Server, {enter}, Message Reprocessing - Internet Explorer
+;  	;  maxWeb.document.getElementByID("j_username").value := "DFLETCH"
+;  	;  maxWeb.document.getElementByID("j_password").value := "maxpass"
+;  	;  maxWeb.document.forms[0].submit()
+;  	ComWait(maxWeb)
+;  }
 ComWait(IE) {
 While IE.readyState != 4 || IE.document.readyState != "complete" || IE.busy
    Sleep 300
@@ -2367,6 +2443,9 @@ FindText(x,y,w,h,err1,err0,text)
     w1:=r1, v:=base64tobit(r2), h1:=StrLen(v)//w1
     if (r0<2 or w1>sw or h1>sh or h1<1 or StrLen(v)!=w1*h1)
       Continue
+	;  msgbox, Pause
+	;  msgbox, Scan0:=> %Scan0%,Stride:=> %Stride%,sx:=> %sx%,sy:=> %sy%,sw:=> %sw%,sh:=> %sh%,v:=> %v%,color:=> %color%,w1:=> %w1%,h1:=> %h1%,rx:=> %rx%,ry:=> %ry%,e1:=> %e1%,e0:=> %e0%
+	;  msgbox, Pause
     if PicFind(Scan0,Stride,sx,sy,sw,sh
       ,v,color,w1,h1,rx,ry,e1,e0)
     {
