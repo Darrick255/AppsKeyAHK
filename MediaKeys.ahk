@@ -248,12 +248,12 @@ Appskey & Q::
 		Send, {Tab}{Ctrl Down}a{Ctrl Up}
 		GetText(TempText)
 		Send, {Ctrl Down}{Shift Down}{home}{Shift Up}{Ctrl Up}
-		ClientID := SubStr(Temptext, inStr(TempText, "Client Id") + 9, inStr(TempText, "Client Type") - inStr(TempText, "Client Id") - 9)
+		ClientID := SubStr(Temptext, inStr(TempText, "Client Id") + 8, inStr(TempText, "Client Type") - inStr(TempText, "Client Id") - 8)
 		ClientFname := SubStr(Temptext, inStr(TempText, "First Name") + 10, inStr(TempText, "Last Name") - inStr(TempText, "First Name") - 10)
 		ClientLname := SubStr(Temptext, inStr(TempText, "Last Name") + 10, inStr(TempText, "Payroll Status") - inStr(TempText, "Last Name") - 10)
 		ClientFname := st_setCase(ClientFname, "t")
 		ClientLname := st_setCase(ClientLname, "t")
-		TempText := ClientID "- " ClientFname " " ClientLname " "
+		TempText := ClientID " - " ClientFname " " ClientLname " "
 		StringReplace,TempText,TempText,`n,,A
 		StringReplace,TempText,TempText,`r,,A
 		IgnoreClipboardChange := False
