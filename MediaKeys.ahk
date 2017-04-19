@@ -1,6 +1,15 @@
 #SingleInstance Force
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 #NoTrayIcon
+;  #InstallKeybdHook	;Hooks required to get A_TimeIdlePhysical
+;  #InstallMouseHook
+;Period of Inactivity in minutes after which to display the message;
+;	Run,%A_WinDir%\System32\Rundll32.exe User32.dll`,LockWorkStation
+;  InactivityPeriod_mins=25
+;  SetTimer,CheckPeriod,1000
+
+
+
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 ;SetBatchLines, 10ms
@@ -173,7 +182,14 @@ Return ;end of auto execute
 
 
 ;___________________________________________ 
+;  CheckPeriod:
+;  	If (A_TimeIdle >= InactivityPeriod_mins*60*1000)
+;  	{	
+;  		Run,%A_WinDir%\System32\Rundll32.exe User32.dll`,LockWorkStation
+;  	}
+;  Return
 
+;  -------------------------------------
 vol_WaveUp:
 SoundSet, +%vol_Step%, Wave
 Gosub, vol_ShowBars
@@ -248,12 +264,12 @@ Appskey & Q::
 		Send, {Tab}{Ctrl Down}a{Ctrl Up}
 		GetText(TempText)
 		Send, {Ctrl Down}{Shift Down}{home}{Shift Up}{Ctrl Up}
-		ClientID := SubStr(Temptext, inStr(TempText, "Client Id") + 8, inStr(TempText, "Client Type") - inStr(TempText, "Client Id") - 8)
+		ClientID := SubStr(Temptext, inStr(TempText, "Client Id") + 9, inStr(TempText, "Client Type") - inStr(TempText, "Client Id") - 9)
 		ClientFname := SubStr(Temptext, inStr(TempText, "First Name") + 10, inStr(TempText, "Last Name") - inStr(TempText, "First Name") - 10)
 		ClientLname := SubStr(Temptext, inStr(TempText, "Last Name") + 10, inStr(TempText, "Payroll Status") - inStr(TempText, "Last Name") - 10)
 		ClientFname := st_setCase(ClientFname, "t")
 		ClientLname := st_setCase(ClientLname, "t")
-		TempText := ClientID " - " ClientFname " " ClientLname " "
+		TempText := ClientID "- " ClientFname " " ClientLname " "
 		StringReplace,TempText,TempText,`n,,A
 		StringReplace,TempText,TempText,`r,,A
 		IgnoreClipboardChange := False
@@ -926,6 +942,31 @@ Return
 	 HiddenWins =
 Return
 
+<!`::
+	topWindow := AHKStack_Poop(HiddenWins)
+	WinShow ahk_id %topWindow%
+Return
+
+  ;https://autohotkey.com/board/topic/27584-ahk-stacks/
+AHKStack_Poop(ByRef Stack) ; Tweaked by [VxE]
+  {
+    AHKStack_Delimiter := "|"
+    EnvSet, ERRORLEVEL, 0
+    Position := InStr(Stack, AHKStack_Delimiter, 0, 0)
+    If Position
+      {
+        Element := SubStr(Stack, Position+1)
+        Stack := SubStr(Stack, 1, Position-1)
+        Return Element
+      }
+    If Stack
+      {
+        Element := Stack
+        Stack := ""
+        Return Element
+      }
+    StringGetPos, Position, Position, SearchText ;Sets ERRORLEVEL To 1
+  }
 
 ~$RButton::
 	KeyWait,LButton,DT0.3
@@ -2148,7 +2189,15 @@ Convert_File(_From_File, _Function_Name, _SplitLength = 16000)
 }
 Return
 
-
+;  https://autohotkey.com/board/topic/6416-tail-the-last-lines-of-a-text-file/page-2
+;  Read tail of file
+Tail(k,file) {  ; Return the last k lines of file
+   Loop Read, %file%
+      i := Mod(A_Index,k), L%i% := A_LoopReadLine
+   Loop % k
+      i := Mod(i+1,k), L .= L%i% "`n"
+   Return L
+}
 
 ; AutoHotkey Version: AutoHotkey 1.1
 ; Language:           English
@@ -2214,6 +2263,7 @@ MessagesHighCount1 = %MessagesHighCount1% `n
 	)
 	SetTimer, MonitorSqOut, Off
 	FileAppend %Line%, C:\tmp\AppsKeyAHK\SqOutQueueHist.txt
+	messageHistory := Tail(216, "C:\tmp\AppsKeyAHK\SqOutQueueHist.txt") ;216 is 2 hours worth of messages at 5 mins each
 	if(MessagesCurrentCount1 <> "")
 	{
 		SetTimer, MonitorSqOut, % 5 * 1000 * 60
@@ -2226,9 +2276,11 @@ MessagesHighCount1 = %MessagesHighCount1% `n
 	}
 	if (MessagesCurrentCount1 >= 100)
 	{
+		SendEmail("me", "Maximo WebLogic SqOut Queue Stuck?", "This Is An Automated Message`n`nThe Maximo Queue is at: "  MessagesCurrentCount1  "`nIs the queue stuck or processing?`nThe History is below (Newest at bottom)`n`n`"  messageHistory, True )
 		tooltip, Message In SqOutQueue is at %MessagesCurrentCount1%`n`n%line%
-		SetTimer, ReSetToolTip, 180000
+		SetTimer, ReSetToolTip, 120000
 	}
+
 
 Return
 }
