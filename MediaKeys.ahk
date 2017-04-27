@@ -165,6 +165,9 @@ if(IgnoreClipboardChange = True)
 	;FileDelete C:\tmp\AppsKeyAHK\AppsKeyClipData.bin
 }
 OnExit ExitSub
+
+#Include WorkSpecific.ahk
+
 IgnoreClipboardChange := False
 Return ;end of auto execute
 
@@ -232,7 +235,6 @@ Progress, 2:Off
 return
 ;end visuals
 
-#Include WorkSpecific.ahk
 
 
 AppsKey::
@@ -318,7 +320,7 @@ Return
 		Send ^v
 		Send, {Shift Down}{Ctrl Down}
 		sleep 100
-		sendRaw, %PasteSeperator%
+		Send, %PasteSeperator%
 		if (clipindex < maxindex)
 		{
 			clipindex += 1
@@ -781,11 +783,10 @@ Return
 Return
 
   ;https://autohotkey.com/board/topic/27584-ahk-stacks/
-AHKStack_Poop(ByRef Stack) ; Tweaked by [VxE]
+AHKStack_Poop(ByRef Stack, AHKStack_Delimiter="|") ; Tweaked by [VxE]
   {
-    AHKStack_Delimiter := "|"
     EnvSet, ERRORLEVEL, 0
-    Position := InStr(Stack, AHKStack_Delmiiter, 0, 0)
+    Position := InStr(Stack, AHKStack_Delimiter, 0, 0)
     If Position
       {
         Element := SubStr(Stack, Position+1)
@@ -2289,6 +2290,6 @@ SendEmail(ToAddress, subject ="No Subject", Body = "Automated Message: No Conten
 	if (Send = True)
 		m.Send ;to automatically send and CLOSE that new email window...  
 	else 
-		m.Display ;to display the email message...and the really cool part, if you leave this line out, it will not show the window............... but the m.send below will still send the email!!!
+		m.Display ;to display the email message...
 	return
 }

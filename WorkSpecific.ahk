@@ -2,6 +2,12 @@
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 #NoTrayIcon
 
+Menu MaximoMsgRe, Add, &Payroll History make sql for history, MaxMenu
+Menu MaximoMsgRe, Add, &Sum of Invoices BMXAA1993/1981E, MaxMenu
+Menu MaximoMsgRe, Add, &No value for po siteid BMXAA7736E, MaxMenu
+Menu MaximoMsgRe, Add,
+Menu MaximoMsgRe, Add, &Monitor Sqoutfunc, MaxMenu
+
 weblogicpass = temp
 weblogicpass := 
 if FileExist("C:\tmp\AppsKeyAHK\transfer.txt")
@@ -12,11 +18,6 @@ if FileExist("C:\tmp\AppsKeyAHK\transfer.txt")
 
 MonitorSqOut()
 
-Menu MaximoMsgRe, Add, &Payroll History make sql for history, MaxMenu
-Menu MaximoMsgRe, Add, &Sum of Invoices BMXAA1993/1981E, MaxMenu
-Menu MaximoMsgRe, Add, &No value for po siteid BMXAA7736E, MaxMenu
-Menu MaximoMsgRe, Add,
-Menu MaximoMsgRe, Add, &Monitor Sqoutfunc, MaxMenu
 
 
 ;====================================================================================================
