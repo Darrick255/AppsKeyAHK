@@ -19,7 +19,6 @@ if FileExist("C:\tmp\AppsKeyAHK\transfer.txt")
 MonitorSqOut()
 
 
-
 ;====================================================================================================
 ;This section is likely only to benefit me as it is my environment specific
 ;*******************************************************
@@ -39,7 +38,8 @@ Appskey & Q::
 		ClientLname := SubStr(Temptext, inStr(TempText, "Last Name") + 10, inStr(TempText, "Payroll Status") - inStr(TempText, "Last Name") - 10)
 		ClientFname := st_setCase(ClientFname, "t")
 		ClientLname := st_setCase(ClientLname, "t")
-		TempText := ClientID "- " ClientFname " " ClientLname " "
+		; TempText := ClientID "- " ClientFname " " ClientLname " "
+		TempText := ClientID "- " ClientFname " " ClientLname " has been inactivated and removed from security groups in maximo"
 		StringReplace,TempText,TempText,`n,,A
 		StringReplace,TempText,TempText,`r,,A
 		IgnoreClipboardChange := False
@@ -96,6 +96,17 @@ return
 		
 	}
 return
+
+
+;  EXCEL hotstring Formulas
+:b0:=uuid::
+	IfWinActive, Microsoft Excel
+		{
+			Send, {BackSpace}{BackSpace}{BackSpace}{BackSpace}{BackSpace}{BackSpace}
+			SendInput, =CONCATENATE(DEC2HEX(RANDBETWEEN(0,4294967295),8),"-",DEC2HEX(RANDBETWEEN(0,42949),4),"-",DEC2HEX(RANDBETWEEN(0,42949),4),"-",DEC2HEX(RANDBETWEEN(0,42949),4),"-",DEC2HEX(RANDBETWEEN(0,4294967295),8),DEC2HEX(RANDBETWEEN(0,42949),4))
+		}
+return
+
 
 Appskey & '::
 	IgnoreClipboardChange := True
@@ -408,6 +419,9 @@ MessagesHighCount1 = %MessagesHighCount1% `n
 	SetTimer, MonitorSqOut, Off
 	FileAppend %Line%, C:\tmp\AppsKeyAHK\SqOutQueueHist.txt
 	messageHistory := Tail(216, "C:\tmp\AppsKeyAHK\SqOutQueueHist.txt") ;216 is 2 hours worth of messages at 5 mins each
+	loop, parse, messageHistory, `n, `r
+		res := A_LoopField . (A_Index=1 ? "" : "`r`n") . res
+	messageHistory := res
 	if(MessagesCurrentCount1 <> "")
 	{
 		SetTimer, MonitorSqOut, % 5 * 1000 * 60
@@ -420,7 +434,7 @@ MessagesHighCount1 = %MessagesHighCount1% `n
 	}
 	if (MessagesCurrentCount1 >= 100)
 	{
-		SendEmail("me", "Maximo WebLogic SqOut Queue Stuck?", "This Is An Automated Message`n`nThe Maximo Queue is at: "  MessagesCurrentCount1  "`nIs the queue stuck or processing?`nThe History is below (Newest at bottom)`n`n`"  messageHistory, True )
+		SendEmail("me", "Maximo WebLogic SqOut Queue Stuck?", "This Is An Automated Message`n`nThe Maximo Queue is at: "  MessagesCurrentCount1  "`nIs the queue stuck or processing?`nThe History is below (Newest at top)`n`n`"  messageHistory, True )
 		tooltip, Message In SqOutQueue is at %MessagesCurrentCount1%`n`n%line%
 		SetTimer, ReSetToolTip, 120000
 	}

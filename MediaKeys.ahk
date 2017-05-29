@@ -242,6 +242,12 @@ AppsKey::
 	Send {AppsKey}
 Return
 
+AppsKey & 0::
+	origtest := Tail(216, "C:\tmp\AppsKeyAHK\SqOutQueueHist.txt") ;216 is 2 hours worth of messages at 5 mins each
+	loop, parse, origtest, `n, `r
+		res := A_LoopField . (A_Index=1 ? "" : "`r`n") . res
+	MsgBox % origtest := res
+Return
 
 AppsKey & p::
 	SysGet, VirtualWidth, 78
@@ -662,12 +668,23 @@ Return
 
 AppsKey & /::
 	; RegEx Replace
-	TempText := SafeInput("Enter Pattern", "RegEx Pattern:", REPatern)
-	If ErrorLevel
-		Return
-	Temp2 := SafeInput("Enter Replacement", "Replacement:", REReplacement)
-	If ErrorLevel
-		Return
+	If GetKeyState("shift")
+	{
+		TempText := SafeInput("Enter Pattern", "RegEx Pattern:", "(.*?)()(.*?)()(.*?)()(.*?)")
+		If ErrorLevel
+			Return
+		Temp2 := SafeInput("Enter Replacement", "Replacement:", "$1$3$5$7")
+		If ErrorLevel
+			Return
+	}
+	else{
+		TempText := SafeInput("Enter Pattern", "RegEx Pattern:", REPatern)
+		If ErrorLevel
+			Return
+		Temp2 := SafeInput("Enter Replacement", "Replacement:", REReplacement)
+		If ErrorLevel
+			Return
+	}
 	REPatern := TempText
 	REReplacement := Temp2
 	GetText(TempText)
@@ -720,7 +737,7 @@ else
 	 {
 			HiddenWins .= (HiddenWins ? "|" : "") . MyWin
 			WinHide ahk_id %MyWin%
-			GroupActivate All
+			;  GroupActivate, All, R
 	 }
 }
 Return
@@ -762,7 +779,7 @@ else
 	 {
 			HiddenWins .= (HiddenWins ? "|" : "") . MyWin
 			WinHide ahk_id %MyWin%
-			GroupActivate All
+			;  GroupActivate, All, R
 	 }
 }
 Return
@@ -819,7 +836,7 @@ AHKStack_Poop(ByRef Stack, AHKStack_Delimiter="|") ; Tweaked by [VxE]
 			{
 				HiddenWins .= (HiddenWins ? "|" : "") . MyWin
 				WinHide ahk_id %MyWin%
-				GroupActivate All
+				;  GroupActivate, All, R
 			}
 		}
 		Return
