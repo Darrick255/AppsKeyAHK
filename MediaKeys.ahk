@@ -165,10 +165,10 @@ if(IgnoreClipboardChange = True)
 	;FileDelete C:\tmp\AppsKeyAHK\AppsKeyClipData.bin
 }
 OnExit ExitSub
-
+Gosub CCsetVars
+IgnoreClipboardChange := False
 #Include WorkSpecific.ahk
 
-IgnoreClipboardChange := False
 Return ;end of auto execute
 
 
@@ -242,12 +242,6 @@ AppsKey::
 	Send {AppsKey}
 Return
 
-AppsKey & 0::
-	origtest := Tail(216, "C:\tmp\AppsKeyAHK\SqOutQueueHist.txt") ;216 is 2 hours worth of messages at 5 mins each
-	loop, parse, origtest, `n, `r
-		res := A_LoopField . (A_Index=1 ? "" : "`r`n") . res
-	MsgBox % origtest := res
-Return
 
 AppsKey & p::
 	SysGet, VirtualWidth, 78
@@ -760,9 +754,10 @@ MsgBox, %A_LoopField%
 PutText(FullText)
 return
 
-AppsKey & c::
-Drive Eject,, % GetKeyState("shift")
-Return
+; Disabled for ChromeCast
+; AppsKey & c::
+; Drive Eject,, % GetKeyState("shift")
+; Return
 
 
 <^`::
@@ -852,7 +847,136 @@ IfWinActive %A_ScriptName%
 Reload
 Return
 
+; =======================================================================================
+; Chromecast stuff
+CCsetVars:
+	CCIconIsCasting.="|<Chromecast button While Casting>*194$32.0000000000000000000000000000Tzs00Dzz00300k00rzg001zv0027yk00wzg003bv002Ayk00tjg0039v002P0k00qrw00AYy0000000000000000000000000000000008"
+	CCIconNotCasting.="|<chromecast icon>*183$30.00000000000000000000000000Dzw00Tzy00M0600M060000600E0600S060070600FU600Qk6006E600HM600PPy00N9w000000000000000000000U"
+	CCIconError.="|<Chromecast Error icon >*207$18.000DzwTzyM06M0K00KE0KS0K70KFU6QkK6E6HM6PPyN9w000U"
+	CCCastNewTab.="|<Pig Benis Not casting>*176$71.0000000000000000000000000000000000000000000000000000000000001s0000000000Dw007k01w000sA008K0340030A00EU068006Ds00V9wAlnkOYM01wKMT4I0q4k020cklDc1Y9U041FVWkE34X0082n34UU37400E4y7kt064M00008000079U0002E00007y00007000003k00000000000000000000000000000000000000000000000000000000000000000000000000000001"
+	CCCastToDevice:="|<Pig Benis while Casting. Taken from desktop cast use after left arrow>*185$71.0000000000000000000000000M00000000007y003s00y000M6004/01a001U6008E0340037w00EYy6Mts5G800y/ADWO8N2M010IMMjoEm4k020cklM8UWF0041NVWEF13W0082T3sQW32A00006000034k0001800003z00003k00000k000000000000000000000000000000000U"
+	CCPopUp.="|<chromecast window is availiable>*144$59.zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzDbzzzzzzzyCDzzzzzzzy8zzzzzzzzy3zzzzzzzzyDzzzzzzzzsDzzzzzzzzWDzzzzzzzyCDzzzzzzzwyTzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+	CCPopupClose.="|<chromecast close button>*144$59.zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzDbzzzzzzzyCDzzzzzzzy8zzzzzzzzy3zzzzzzzzyDzzzzzzzzsDzzzzzzzzWDzzzzzzzyCDzzzzzzzwyTzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+	CCCastDiffTab.="|<chromecast window is Cast New Tab button>*201$71.00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000D11ty0000000X76Mk00000032+8FU00000060IM30000000A1AC60000000M286A0000000kjm4M0000000XMqMk0000000wUbVU00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001"
+	CCStop:="|<chromecast window Stop Cast button>*197$53.00000000000000000000000000000000000000000000007bssT0000NX28X0000V6A920001UAEGA0000sMUbk0000Ml1800008FX2E0000MX28U0000S63V00000000000000000000000000000000000000000000001"
+	CCLeftArrow.="|<From Casting to List of devices>*165$59.zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzszzzzDzzzznzzzwzzzzzbzzznzzzzzDzzzDzzzzyTzzwzzzzzwTzzk07zzztzzzU0DzzznzzzbzzzzzbzzzbzzzzzDzzzbzzzzzzzzzbzzzzzzzzzbzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"
+	CCDropDownArrow.="|<Chromecast drop down arrow above devices>*165$71.zzzzzzzzzzzy7zzzzzzzzzzxbzzzzzzzzzzzbzzzy0TzzzzzDzzzy1zzzzzyTzzzy7zzzzzNzzzzyTzzzzy7zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzs"
+	CCDesktop.="|<Cast Desktop>*166$71.000000000000000000000000000000000000Tzs00Q0000U0k0k03400E101U1U04800U203030083lnUwQ60600E0YG394A0A00U7a44HsM0M012H388Y0k0k034aWENA0zz001lwskSC7zzU00000000000000000000000000000000000000000008"
+	TVIcon.="|<Tv extension icon>*185$29.00000000000000000000000000z0003z000Dz000wD003kD0078C00C0Q00Q0s00s1k01s7U01sS001zs001zU001y0000000000000000000000000000001"
+	TVConnected.="|<TV Connected string>*182$71.000000000000000000000003zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz7UswMwS3sw7wC0lslss71kDsMFXlXlVg3WTUlX7X7W7s76y1V2D6041yCBwX04SA081wMvl70MwMwEVskrU3slklsXXllj05VVXXl2DXWTss7U77X0T70zlkTUSD71yD1zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzU00000000000000000000001"
+	TVPowerOff.="|<TV Power of icon >*170$71.00000000000000000000000000000000000003zzzzzzz0000Tzzzzzzz0000k0000000000300000000000600000000000A00000000000M001y0000000k00000000001U0000000000300000000000600000000000A00000000000M00000000000k00000000001U007s000000300000000000600000000000A000000000008000000000000000000000000000000000000000000001"
 
+	CCAppIconAll := CCIconIsCasting . CCIconNotCasting . CCIconError
+	CC1ClickAll := CCCastNewTab . CCCastToDevice . CCCastDiffTab
+return
+
+AppsKey & S::
+	IfWinNotActive, ahk_exe chrome.exe
+	WinActivate, ahk_exe chrome.exe
+	IfWinActive, ahk_class Chrome_WidgetWin_1
+	{
+		waitclick( CCAppIconAll )
+		waitclick( CCStop )
+		findclick( CCCastNewTab, CCPopupClose )
+		waitclick( TVIcon )
+		findclick( TVConnected, TVPowerOff )
+		send, {escape}
+	}
+return
+
+AppsKey & D::
+	IfWinNotActive, ahk_exe chrome.exe
+    WinActivate, ahk_exe chrome.exe
+	IfWinActive, ahk_class Chrome_WidgetWin_1 
+	{
+		waitclick( CCAppIconAll )
+		waitclick( CCLeftArrow )
+		waitclick( CCDropDownArrow )
+		waitclick( CCDesktop )
+		waitclick( CC1ClickAll )
+		waitclick( CC1ClickAll, 500 )
+	}
+return
+
+AppsKey & C::
+	;cast tab
+	msgbox ran
+
+	IfWinActive, ahk_class Chrome_WidgetWin_1 
+	{
+		waitclick(CCAppIconAll)
+		waitclick(CC1ClickAll)
+		findclick(CCStop, CCPopupClose)
+	}
+return
+
+waitclick(text, timeout=2000)
+{
+	msgbox, %text%
+	start := A_TickCount
+	while (A_TickCount-start <= timeout)
+	{
+		sleep 50
+		if ok:=FindText(808,285,150000,150000,0,0,text)
+		{
+			CoordMode, Mouse
+			X:=ok.1, Y:=ok.2, W:=ok.3, H:=ok.4, Comment:=ok.5
+			MouseMove, X+W//2, Y+H//2
+			MouseClick
+			break
+		}
+	}
+	return
+}
+
+waitfound(text, timeout=500)
+{
+	start := A_TickCount
+	while (A_TickCount-start <= timeout)
+	{
+		sleep 50
+		if ok:=FindText(808,285,150000,150000,0,0,text)
+		{
+			CoordMode, Mouse
+			X:=ok.1, Y:=ok.2, W:=ok.3, H:=ok.4, Comment:=ok.5
+			MouseMove, X+W//2, Y+H//2
+			MouseClick
+			break
+		}
+	}
+	return ok
+}
+
+
+findclick(find, click, timeout=2000)
+{
+	start := A_TickCount
+	while (A_TickCount-start <= timeout)
+	{
+		sleep 50
+		if ok:=FindText(808,285,150000,150000,0,0,find)
+		{
+			CoordMode, Mouse
+			X:=ok.1, Y:=ok.2, W:=ok.3, H:=ok.4, Comment:=ok.5
+			break
+		}
+	}
+	while (A_TickCount-start <= timeout)
+	{
+		sleep 50
+		if ok:=FindText(808,285,150000,150000,0,0,click)
+		{
+			CoordMode, Mouse
+			X:=ok.1, Y:=ok.2, W:=ok.3, H:=ok.4, Comment:=ok.5
+			MouseMove, X+W//2, Y+H//2
+			MouseClick
+			break
+		}
+	}
+	return
+}
+; End Chromecast Stuff
+; =======================================================================================
 AppsKey & LButton::
 	CoordMode, Mouse  ; Switch to screen/absolute coordinates.
 	MouseGetPos, EWD_MouseStartX, EWD_MouseStartY, EWD_MouseWin
@@ -2030,6 +2154,8 @@ ExitSub:
 	ExitApp ;end of clipboard
 return
 
+;===== Copy The Following Functions To Your Own Code Just once =====
+
 
 ; Note: parameters of the X,Y is the center of the coordinates,
 ; and the W,H is the offset distance to the center,
@@ -2037,34 +2163,32 @@ return
 ; err1 is the character "0" fault-tolerant in percentage.
 ; err0 is the character "_" fault-tolerant in percentage.
 ; Text can be a lot of text to find, separated by "|".
-; ruturn is a array, contains the X,Y,W,H,OCR results of Each Find.
+; ruturn is a array, contains the X,Y,W,H,Comment results of Each Find.
 
 FindText(x,y,w,h,err1,err0,text)
 {
   xywh2xywh(x-w,y-h,2*w+1,2*h+1,x,y,w,h)
   if (w<1 or h<1)
-    Return, 0
+    return, 0
   bch:=A_BatchLines
   SetBatchLines, -1
   ;--------------------------------------
   GetBitsFromScreen(x,y,w,h,Scan0,Stride,bits)
   ;--------------------------------------
-  sx:=0, sy:=0, sw:=w, sh:=h
-  if (err1=0 and err0=0)
-    err1:=0.05, err0:=0.05
-  arr:=[]
+  sx:=0, sy:=0, sw:=w, sh:=h, arr:=[]
+  Loop, 2 {
   Loop, Parse, text, |
   {
     v:=A_LoopField
     IfNotInString, v, $, Continue
-    OCR:="", e1:=err1, e0:=err0
-    ; You Can Add OCR Text In The <>
+    Comment:="", e1:=err1, e0:=err0
+    ; You Can Add Comment Text within The <>
     if RegExMatch(v,"<([^>]*)>",r)
-      v:=StrReplace(v,r), OCR:=Trim(r1)
+      v:=StrReplace(v,r), Comment:=Trim(r1)
     ; You can Add two fault-tolerant in the [], separated by commas
     if RegExMatch(v,"\[([^\]]*)]",r)
     {
-      v:=StrReplace(v,r), r2:=""
+      v:=StrReplace(v,r), r1.=","
       StringSplit, r, r1, `,
       e1:=r1, e0:=r2
     }
@@ -2072,20 +2196,133 @@ FindText(x,y,w,h,err1,err0,text)
     color:=r1, v:=r2
     StringSplit, r, v, .
     w1:=r1, v:=base64tobit(r2), h1:=StrLen(v)//w1
-    if (r0<2 or w1>sw or h1>sh or h1<1 or StrLen(v)!=w1*h1)
+    if (r0<2 or h1<1 or w1>sw or h1>sh or StrLen(v)!=w1*h1)
       Continue
-	;  msgbox, Pause
-	;  msgbox, Scan0:=> %Scan0%,Stride:=> %Stride%,sx:=> %sx%,sy:=> %sy%,sw:=> %sw%,sh:=> %sh%,v:=> %v%,color:=> %color%,w1:=> %w1%,h1:=> %h1%,rx:=> %rx%,ry:=> %ry%,e1:=> %e1%,e0:=> %e0%
-	;  msgbox, Pause
-    if PicFind(Scan0,Stride,sx,sy,sw,sh
-      ,v,color,w1,h1,rx,ry,e1,e0)
+    ;--------------------------------------------
+    if InStr(color,"-")
+    {
+      r:=e1, e1:=e0, e0:=r, v:=StrReplace(v,"1","_")
+      v:=StrReplace(StrReplace(v,"0","1"),"_","0")
+    }
+    mode:=InStr(color,"*") ? 1:0
+    color:=RegExReplace(color,"[*\-]") . "@"
+    StringSplit, r, color, @
+    color:=Round(r1), n:=Round(r2,2)+(!r2)
+    n:=Floor(255*3*(1-n)), k:=StrLen(v)*4
+    VarSetCapacity(ss, sw*sh, Asc("0"))
+    VarSetCapacity(s1, k, 0), VarSetCapacity(s0, k, 0)
+    VarSetCapacity(rx, 8, 0), VarSetCapacity(ry, 8, 0)
+    len1:=len0:=0, j:=sw-w1+1, i:=-j
+    ListLines, Off
+    Loop, Parse, v
+    {
+      i:=Mod(A_Index,w1)=1 ? i+j : i+1
+      if A_LoopField
+        NumPut(i, s1, 4*len1++, "int")
+      else
+        NumPut(i, s0, 4*len0++, "int")
+    }
+    ListLines, On
+    e1:=Round(len1*e1), e0:=Round(len0*e0)
+    ;--------------------------------------------
+    if PicFind(mode,color,n,Scan0,Stride,sx,sy,sw,sh
+      ,ss,s1,s0,len1,len0,e1,e0,w1,h1,rx,ry)
     {
       rx+=x, ry+=y
-      arr.Push(rx,ry,w1,h1,OCR)
+      arr.Push(rx,ry,w1,h1,Comment)
     }
   }
+  if (arr.MaxIndex())
+    Break
+  if (A_Index=1 and err1=0 and err0=0)
+    err1:=0.05, err0:=0.05
+  else Break
+  }
   SetBatchLines, %bch%
-  Return, arr.MaxIndex() ? arr:0
+  return, arr.MaxIndex() ? arr:0
+}
+
+PicFind(mode, color, n, Scan0, Stride
+  , sx, sy, sw, sh, ByRef ss, ByRef s1, ByRef s0
+  , len1, len0, err1, err0, w, h, ByRef rx, ByRef ry)
+{
+  static MyFunc
+  if !MyFunc
+  {
+    x32:="5589E583EC408B45200FAF45188B551CC1E20201D08945F"
+    . "48B5524B80000000029D0C1E00289C28B451801D08945D8C74"
+    . "5F000000000837D08000F85F00000008B450CC1E81025FF000"
+    . "0008945D48B450CC1E80825FF0000008945D08B450C25FF000"
+    . "0008945CCC745F800000000E9AC000000C745FC00000000E98"
+    . "A0000008B45F483C00289C28B451401D00FB6000FB6C02B45D"
+    . "48945EC8B45F483C00189C28B451401D00FB6000FB6C02B45D"
+    . "08945E88B55F48B451401D00FB6000FB6C02B45CC8945E4837"
+    . "DEC007903F75DEC837DE8007903F75DE8837DE4007903F75DE"
+    . "48B55EC8B45E801C28B45E401D03B45107F0B8B55F08B452C0"
+    . "1D0C600318345FC018345F4048345F0018B45FC3B45240F8C6"
+    . "AFFFFFF8345F8018B45D80145F48B45F83B45280F8C48FFFFF"
+    . "FE9A30000008B450C83C00169C0E803000089450CC745F8000"
+    . "00000EB7FC745FC00000000EB648B45F483C00289C28B45140"
+    . "1D00FB6000FB6C069D02B0100008B45F483C00189C18B45140"
+    . "1C80FB6000FB6C069C04B0200008D0C028B55F48B451401D00"
+    . "FB6000FB6C06BC07201C83B450C730B8B55F08B452C01D0C60"
+    . "0318345FC018345F4048345F0018B45FC3B45247C948345F80"
+    . "18B45D80145F48B45F83B45280F8C75FFFFFF8B45242B45488"
+    . "3C0018945488B45282B454C83C00189454C8B453839453C0F4"
+    . "D453C8945D8C745F800000000E9E3000000C745FC00000000E"
+    . "9C70000008B45F80FAF452489C28B45FC01D08945F48B45408"
+    . "945E08B45448945DCC745F000000000EB708B45F03B45387D2"
+    . "E8B45F08D1485000000008B453001D08B108B45F401D089C28"
+    . "B452C01D00FB6003C31740A836DE001837DE00078638B45F03"
+    . "B453C7D2E8B45F08D1485000000008B453401D08B108B45F40"
+    . "1D089C28B452C01D00FB6003C30740A836DDC01837DDC00783"
+    . "08345F0018B45F03B45D87C888B551C8B45FC01C28B4550891"
+    . "08B55208B45F801C28B45548910B801000000EB2990EB01908"
+    . "345FC018B45FC3B45480F8C2DFFFFFF8345F8018B45F83B454"
+    . "C0F8C11FFFFFFB800000000C9C25000"
+    x64:="554889E54883EC40894D10895518448945204C894D288B4"
+    . "5400FAF45308B5538C1E20201D08945F48B5548B8000000002"
+    . "9D0C1E00289C28B453001D08945D8C745F000000000837D100"
+    . "00F85000100008B4518C1E81025FF0000008945D48B4518C1E"
+    . "80825FF0000008945D08B451825FF0000008945CCC745F8000"
+    . "00000E9BC000000C745FC00000000E99A0000008B45F483C00"
+    . "24863D0488B45284801D00FB6000FB6C02B45D48945EC8B45F"
+    . "483C0014863D0488B45284801D00FB6000FB6C02B45D08945E"
+    . "88B45F44863D0488B45284801D00FB6000FB6C02B45CC8945E"
+    . "4837DEC007903F75DEC837DE8007903F75DE8837DE4007903F"
+    . "75DE48B55EC8B45E801C28B45E401D03B45207F108B45F0486"
+    . "3D0488B45584801D0C600318345FC018345F4048345F0018B4"
+    . "5FC3B45480F8C5AFFFFFF8345F8018B45D80145F48B45F83B4"
+    . "5500F8C38FFFFFFE9B60000008B451883C00169C0E80300008"
+    . "94518C745F800000000E98F000000C745FC00000000EB748B4"
+    . "5F483C0024863D0488B45284801D00FB6000FB6C069D02B010"
+    . "0008B45F483C0014863C8488B45284801C80FB6000FB6C069C"
+    . "04B0200008D0C028B45F44863D0488B45284801D00FB6000FB"
+    . "6C06BC07201C83B451873108B45F04863D0488B45584801D0C"
+    . "600318345FC018345F4048345F0018B45FC3B45487C848345F"
+    . "8018B45D80145F48B45F83B45500F8C65FFFFFF8B45482B859"
+    . "000000083C0018985900000008B45502B859800000083C0018"
+    . "985980000008B45703945780F4D45788945D8C745F80000000"
+    . "0E90B010000C745FC00000000E9EC0000008B45F80FAF45488"
+    . "9C28B45FC01D08945F48B85800000008945E08B85880000008"
+    . "945DCC745F000000000E9800000008B45F03B45707D368B45F"
+    . "04898488D148500000000488B45604801D08B108B45F401D04"
+    . "863D0488B45584801D00FB6003C31740A836DE001837DE0007"
+    . "8778B45F03B45787D368B45F04898488D148500000000488B4"
+    . "5684801D08B108B45F401D04863D0488B45584801D00FB6003"
+    . "C30740A836DDC01837DDC00783C8345F0018B45F03B45D80F8"
+    . "C74FFFFFF8B55388B45FC01C2488B85A000000089108B55408"
+    . "B45F801C2488B85A80000008910B801000000EB2F90EB01908"
+    . "345FC018B45FC3B85900000000F8C05FFFFFF8345F8018B45F"
+    . "83B85980000000F8CE6FEFFFFB8000000004883C4405DC390"
+    MCode(MyFunc, A_PtrSize=8 ? x64:x32)
+  }
+  return, DllCall(&MyFunc, "int",mode
+    , "uint",color, "int",n, "ptr",Scan0, "int",Stride
+    , "int",sx, "int",sy, "int",sw, "int",sh
+    , "ptr",&ss, "ptr",&s1, "ptr",&s0
+    , "int",len1, "int",len0, "int",err1, "int",err0
+    , "int",w, "int",h, "int*",rx, "int*",ry)
 }
 
 xywh2xywh(x1,y1,w1,h1,ByRef x,ByRef y,ByRef w,ByRef h)
@@ -2107,8 +2344,7 @@ GetBitsFromScreen(x,y,w,h,ByRef Scan0,ByRef Stride,ByRef bits)
   win:=DllCall("GetDesktopWindow", Ptr)
   hDC:=DllCall("GetWindowDC", Ptr,win, Ptr)
   mDC:=DllCall("CreateCompatibleDC", Ptr,hDC, Ptr)
-  hBM:=DllCall("CreateCompatibleBitmap", Ptr,hDC
-    , "int",w, "int",h, Ptr)
+  hBM:=DllCall("CreateCompatibleBitmap", Ptr,hDC, "int",w, "int",h, Ptr)
   oBM:=DllCall("SelectObject", Ptr,mDC, Ptr,hBM, Ptr)
   DllCall("BitBlt", Ptr,mDC, "int",0, "int",0, "int",w, "int",h
     , Ptr,hDC, "int",x, "int",y, "uint",0x00CC0020|0x40000000)
@@ -2126,144 +2362,9 @@ GetBitsFromScreen(x,y,w,h,ByRef Scan0,ByRef Stride,ByRef bits)
   Scan0:=&bits, Stride:=((w*bpp+31)//32)*4
 }
 
-PicFind(Scan0,Stride,sx,sy,sw,sh,text,color
-  , w, h, ByRef rx, ByRef ry, err1, err0)
-{
-  static MyFunc
-  if !MyFunc
-  {
-    x32:="5589E583EC408B45200FAF45188B551CC1E20201D08945F"
-    . "48B5524B80000000029D0C1E00289C28B451801D08945DCC74"
-    . "5F000000000837D08000F85210100008B450CC1E81025FF000"
-    . "0008945D88B450CC1E80825FF0000008945D48B450C25FF000"
-    . "0008945D0C745F800000000E9DD000000C745FC00000000E9B"
-    . "B0000008B45F483C00289C28B451401D00FB6000FB6C08945C"
-    . "C8B45F483C00189C28B451401D00FB6000FB6C08945C88B55F"
-    . "48B451401D00FB6000FB6C08945C48B45CC2B45D889C28B45C"
-    . "C3B45D87E07B801000000EB05B8FFFFFFFF0FAFD08B45C82B4"
-    . "5D489C18B45C83B45D47E07B801000000EB05B8FFFFFFFF0FA"
-    . "FC18D0C028B45C42B45D089C28B45C43B45D07E07B80100000"
-    . "0EB05B8FFFFFFFF0FAFC201C83B45107F0B8B55F08B452C01D"
-    . "0C600318345FC018345F4048345F0018B45FC3B45240F8C39F"
-    . "FFFFF8345F8018B45DC0145F48B45F83B45280F8C17FFFFFFE"
-    . "9A30000008B450C83C00169C0E803000089450CC745F800000"
-    . "000EB7FC745FC00000000EB648B45F483C00289C28B451401D"
-    . "00FB6000FB6C069D02B0100008B45F483C00189C18B451401C"
-    . "80FB6000FB6C069C04B0200008D0C028B55F48B451401D00FB"
-    . "6000FB6C06BC07201C83B450C730B8B55F08B452C01D0C6003"
-    . "18345FC018345F4048345F0018B45FC3B45247C948345F8018"
-    . "B45DC0145F48B45F83B45280F8C75FFFFFFC745E8000000008"
-    . "B45E88945EC8B45EC8945F0C745F800000000EB7CC745FC000"
-    . "00000EB678B45F08D50018955F089C28B453001D00FB6003C3"
-    . "175278B45EC8D50018955EC8D1485000000008B453401C28B4"
-    . "5F80FAF452489C18B45FC01C88902EB258B45E88D50018955E"
-    . "88D1485000000008B453801C28B45F80FAF452489C18B45FC0"
-    . "1C889028345FC018B45FC3B453C7C918345F8018B45F83B454"
-    . "00F8C78FFFFFF8B45242B453C83C00189453C8B45282B45408"
-    . "3C0018945408B45EC3945E80F4D45E88945DCC745F80000000"
-    . "0E9E3000000C745FC00000000E9C70000008B45F80FAF45248"
-    . "9C28B45FC01D08945F48B45448945E48B45488945E0C745F00"
-    . "0000000EB708B45F03B45EC7D2E8B45F08D1485000000008B4"
-    . "53401D08B108B45F401D089C28B452C01D00FB6003C31740A8"
-    . "36DE401837DE40078638B45F03B45E87D2E8B45F08D1485000"
-    . "000008B453801D08B108B45F401D089C28B452C01D00FB6003"
-    . "C30740A836DE001837DE00078308345F0018B45F03B45DC7C8"
-    . "88B551C8B45FC01C28B454C89108B55208B45F801C28B45508"
-    . "910B801000000EB3B90EB01908345FC018B45FC3B453C0F8C2"
-    . "DFFFFFF8345F8018B45F83B45400F8C11FFFFFF8B454CC700F"
-    . "FFFFFFF8B4550C700FFFFFFFFB800000000C9C24C0090"
-    x64:="554889E54883EC40894D10895518448945204C894D288B4"
-    . "5400FAF45308B5538C1E20201D08945F48B5548B8000000002"
-    . "9D0C1E00289C28B453001D08945DCC745F000000000837D100"
-    . "00F85310100008B4518C1E81025FF0000008945D88B4518C1E"
-    . "80825FF0000008945D48B451825FF0000008945D0C745F8000"
-    . "00000E9ED000000C745FC00000000E9CB0000008B45F483C00"
-    . "24863D0488B45284801D00FB6000FB6C08945CC8B45F483C00"
-    . "14863D0488B45284801D00FB6000FB6C08945C88B45F44863D"
-    . "0488B45284801D00FB6000FB6C08945C48B45CC2B45D889C28"
-    . "B45CC3B45D87E07B801000000EB05B8FFFFFFFF0FAFD08B45C"
-    . "82B45D489C18B45C83B45D47E07B801000000EB05B8FFFFFFF"
-    . "F0FAFC18D0C028B45C42B45D089C28B45C43B45D07E07B8010"
-    . "00000EB05B8FFFFFFFF0FAFC201C83B45207F108B45F04863D"
-    . "0488B45584801D0C600318345FC018345F4048345F0018B45F"
-    . "C3B45480F8C29FFFFFF8345F8018B45DC0145F48B45F83B455"
-    . "00F8C07FFFFFFE9B60000008B451883C00169C0E8030000894"
-    . "518C745F800000000E98F000000C745FC00000000EB748B45F"
-    . "483C0024863D0488B45284801D00FB6000FB6C069D02B01000"
-    . "08B45F483C0014863C8488B45284801C80FB6000FB6C069C04"
-    . "B0200008D0C028B45F44863D0488B45284801D00FB6000FB6C"
-    . "06BC07201C83B451873108B45F04863D0488B45584801D0C60"
-    . "0318345FC018345F4048345F0018B45FC3B45487C848345F80"
-    . "18B45DC0145F48B45F83B45500F8C65FFFFFFC745E80000000"
-    . "08B45E88945EC8B45EC8945F0C745F800000000E989000000C"
-    . "745FC00000000EB748B45F08D50018955F04863D0488B45604"
-    . "801D00FB6003C31752C8B45EC8D50018955EC4898488D14850"
-    . "0000000488B45684801C28B45F80FAF454889C18B45FC01C88"
-    . "902EB2A8B45E88D50018955E84898488D148500000000488B4"
-    . "5704801C28B45F80FAF454889C18B45FC01C889028345FC018"
-    . "B45FC3B45787C848345F8018B45F83B85800000000F8C68FFF"
-    . "FFF8B45482B457883C0018945788B45502B858000000083C00"
-    . "18985800000008B45EC3945E80F4D45E88945DCC745F800000"
-    . "000E908010000C745FC00000000E9EC0000008B45F80FAF454"
-    . "889C28B45FC01D08945F48B85880000008945E48B859000000"
-    . "08945E0C745F000000000E9800000008B45F03B45EC7D368B4"
-    . "5F04898488D148500000000488B45684801D08B108B45F401D"
-    . "04863D0488B45584801D00FB6003C31740A836DE401837DE40"
-    . "078778B45F03B45E87D368B45F04898488D148500000000488"
-    . "B45704801D08B108B45F401D04863D0488B45584801D00FB60"
-    . "03C30740A836DE001837DE000783C8345F0018B45F03B45DC0"
-    . "F8C74FFFFFF8B55388B45FC01C2488B859800000089108B554"
-    . "08B45F801C2488B85A00000008910B801000000EB4690EB019"
-    . "08345FC018B45FC3B45780F8C08FFFFFF8345F8018B45F83B8"
-    . "5800000000F8CE9FEFFFF488B8598000000C700FFFFFFFF488"
-    . "B85A0000000C700FFFFFFFFB8000000004883C4405DC39090"
-    MCode(MyFunc, A_PtrSize=8 ? x64:x32)
-  }
-  v:=text
-  if InStr(color,"-")
-  {
-    r:=err1, err1:=err0, err0:=r, v:=StrReplace(v,"1","_")
-    v:=StrReplace(StrReplace(v,"0","1"),"_","0")
-  }
-  if err1!=0
-    err1:=Round(StrLen(StrReplace(v,"0"))*err1)
-  if err0!=0
-    err0:=Round(StrLen(StrReplace(v,"1"))*err0)
-  mode:=InStr(color,"*") ? 1:0
-  color:=RegExReplace(color,"[*\-]") . "@"
-  StringSplit, r, color, @
-  color:=Round(r1), n:=Round(r2,2)+(!r2)
-  text:=v, k:=StrLen(text)*4, n:=Floor(255*3*(1-n))
-  VarSetCapacity(ss, sw*sh, Asc("0"))
-  VarSetCapacity(s1, k, 0), VarSetCapacity(s0, k, 0)
-  VarSetCapacity(rx, 8, 0), VarSetCapacity(ry, 8, 0)
-  Return, DllCall(&MyFunc, "int",mode
-    , "uint",color, "int",n, "ptr",Scan0, "int",Stride
-    , "int",sx, "int",sy, "int",sw, "int",sh
-    , "ptr",&ss, "Astr",text, "ptr",&s1, "ptr",&s0
-    , "int",w, "int",h, "int",err1, "int",err0
-    , "int*",rx, "int*",ry)
-}
-
-MCode(ByRef code, hex)
+base64tobit(s)
 {
   ListLines, Off
-  bch:=A_BatchLines
-  SetBatchLines, -1
-  VarSetCapacity(code, StrLen(hex)//2)
-  Loop, % StrLen(hex)//2
-    NumPut("0x" . SubStr(hex,2*A_Index-1,2)
-      , code, A_Index-1, "char")
-  Ptr:=A_PtrSize ? "Ptr" : "UInt"
-  DllCall("VirtualProtect", Ptr,&code, Ptr
-    ,VarSetCapacity(code), "uint",0x40, Ptr . "*",0)
-  SetBatchLines, %bch%
-  ListLines, On
-}
-
-base64tobit(s) {
-  ListLines, Off
-  s:=RegExReplace(s,"\s+")
   Chars:="0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     . "abcdefghijklmnopqrstuvwxyz"
   SetFormat, IntegerFast, d
@@ -2276,13 +2377,15 @@ base64tobit(s) {
   }
   StringCaseSense, Off
   s:=SubStr(s,1,InStr(s,"1",0,0)-1)
+  s:=RegExReplace(s,"[^01]+")
   ListLines, On
-  Return, s
+  return, s
 }
 
-bit2base64(s) {
+bit2base64(s)
+{
   ListLines, Off
-  s:=RegExReplace(s,"\s+")
+  s:=RegExReplace(s,"[^01]+")
   s.=SubStr("100000",1,6-Mod(StrLen(s),6))
   s:=RegExReplace(s,".{6}","|$0")
   Chars:="0123456789+/ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -2295,8 +2398,37 @@ bit2base64(s) {
     s:=StrReplace(s,v,A_LoopField)
   }
   ListLines, On
-  Return, s
+  return, s
 }
+
+ASCII(s)
+{
+  if RegExMatch(s,"(\d+)\.([\w+/]{3,})",r)
+  {
+    s:=RegExReplace(base64tobit(r2),".{" r1 "}","$0`n")
+    s:=StrReplace(StrReplace(s,"0","_"),"1","0")
+  }
+  else s=
+  return, s
+}
+
+MCode(ByRef code, hex)
+{
+  ListLines, Off
+  bch:=A_BatchLines
+  SetBatchLines, -1
+  VarSetCapacity(code, StrLen(hex)//2)
+  Loop, % StrLen(hex)//2
+    NumPut("0x" . SubStr(hex,2*A_Index-1,2), code, A_Index-1, "char")
+  Ptr:=A_PtrSize ? "Ptr" : "UInt"
+  DllCall("VirtualProtect", Ptr,&code, Ptr
+    ,VarSetCapacity(code), "uint",0x40, Ptr . "*",0)
+  SetBatchLines, %bch%
+  ListLines, On
+}
+
+
+
 
 SendEmail(ToAddress, subject ="No Subject", Body = "Automated Message: No Content", send=False )
 {
