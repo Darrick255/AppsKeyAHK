@@ -67,9 +67,18 @@ LM: allows click draging of window without clicking on tile bar
 | Ctrl+Shift+3               | Increase The Repeat Speed By 50ms                         |
 | Ctrl+Shift+5               | Clear History                                             |
 
+#ChromeCast
+
+>Therese functins hijack your mouse for a bit.
+
+|Keys|Action|
+|-|-|
+|Appskey & C| Casts the Currently Active Chrome Tab to the first ChromeCast on list|
+|Appskey & D| Cast The Desktop to the First ChromeCast In the List, Chrome must be running but doesn't have to be active |
+|Appskey & Esc| Stops the current Cast And turns off my LG TV for me |
+
 
 >actions{} https://autohotkey.com/docs/commands/Send.htm
-
 | Code | Key/meaning                      |
 | ---- | -------------------------------- |
 | #    | Win (Windows logo key).          |
