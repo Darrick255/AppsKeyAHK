@@ -8,8 +8,6 @@ Menu MaximoMsgRe, Add, &No value for po siteid BMXAA7736E, MaxMenu
 Menu MaximoMsgRe, Add,
 Menu MaximoMsgRe, Add, &Monitor Sqoutfunc, MaxMenu
 
-weblogicpass = temp
-weblogicpass := 
 if FileExist("C:\tmp\AppsKeyAHK\transfer.txt")
 {
 	FileRead weblogicpass, C:\tmp\AppsKeyAHK\transfer.txt
@@ -106,6 +104,15 @@ return
 			SendInput, =CONCATENATE(DEC2HEX(RANDBETWEEN(0,4294967295),8),"-",DEC2HEX(RANDBETWEEN(0,42949),4),"-",DEC2HEX(RANDBETWEEN(0,42949),4),"-",DEC2HEX(RANDBETWEEN(0,42949),4),"-",DEC2HEX(RANDBETWEEN(0,4294967295),8),DEC2HEX(RANDBETWEEN(0,42949),4))
 		}
 return
+:b0:=jsdate::
+	IfWinActive, Microsoft Excel
+		{
+			Send, {BackSpace}{BackSpace}{BackSpace}{BackSpace}{BackSpace}{BackSpace}{BackSpace}{BackSpace}
+			SendInput, =((MID(JavaScriptDateNumber, 1, 10))/86400){+}DATE(1970,1,1)-7/24
+
+		}
+return
+
 
 
 Appskey & '::
@@ -382,7 +389,7 @@ return
 
 
 MonitorSqOut() {
-	global weblogicpass
+	global weblogicpass, MaximoRecipient
 	username = maxadmin
     if (weblogicpass == "")
 		weblogicpass := SafeInput("Enter Weblogic Password", "maxadmin pass:")
@@ -434,7 +441,7 @@ MessagesHighCount1 = %MessagesHighCount1% `n
 	}
 	if (MessagesCurrentCount1 >= 100)
 	{
-		SendEmail("me", "Maximo WebLogic SqOut Queue Stuck?", "This Is An Automated Message`n`nThe Maximo Queue is at: "  MessagesCurrentCount1  "`nIs the queue stuck or processing?`nThe History is below (Newest at top)`n`n`"  messageHistory, True )
+		SendEmail(MaximoRecipient, "Maximo WebLogic SqOut Queue Stuck?", "This Is An Automated Message`n`nThe Maximo Queue is at: "  MessagesCurrentCount1  "`nIs the queue stuck or processing?`nThe History is below (Newest at top)`n`n`"  messageHistory, True )
 		tooltip, Message In SqOutQueue is at %MessagesCurrentCount1%`n`n%line%
 		SetTimer, ReSetToolTip, 120000
 	}
@@ -467,8 +474,3 @@ Return
 ;  	;  maxWeb.document.forms[0].submit()
 ;  	ComWait(maxWeb)
 ;  }
-ComWait(IE) {
-While IE.readyState != 4 || IE.document.readyState != "complete" || IE.busy
-   Sleep 300
-   Sleep 300
-}
