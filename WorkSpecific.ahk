@@ -14,7 +14,7 @@ if FileExist("C:\tmp\AppsKeyAHK\transfer.txt")
 	FileDelete C:\tmp\AppsKeyAHK\transfer.txt
 }
 
-MonitorSqOut()
+; MonitorSqOut()
 
 
 ;====================================================================================================
@@ -390,9 +390,11 @@ return
 
 MonitorSqOut() {
 	global weblogicpass, MaximoRecipient
+	return
 	username = maxadmin
     if (weblogicpass == "")
 		weblogicpass := SafeInput("Enter Weblogic Password", "maxadmin pass:")
+		Try {
 	wb := ComObjCreate("{D5E8041D-920F-45e9-B8FB-B1DEB82C6E5E}") ; create a InternetExplorerMedium instance from https://autohotkey.com/boards/viewtopic.php?t=21015
 	;  wb.Visible := True
 	wb.Navigate("https://pkdcmaxw01.westfrasertimber.ca:7002/console/console.portal?_nfpb=true&_pageLabel=JMSQueueMonitorBook&handle=com.bea.console.handles.JMXHandle%28%22com.bea%3AName%3Dsqout%2CType%3Dweblogic.j2ee.descriptor.wl.QueueBean%2CParent%3D%5Bmaximodomain%5D%2FJMSSystemResources%5Buijmsmodule%5D%2CPath%3DJMSResource%5Buijmsmodule%5D%2FQueues%5Bsqout%5D%22%29")
@@ -445,7 +447,11 @@ MessagesHighCount1 = %MessagesHighCount1% `n
 		tooltip, Message In SqOutQueue is at %MessagesCurrentCount1%`n`n%line%
 		SetTimer, ReSetToolTip, 120000
 	}
-
+		}
+		catch e
+		{
+			MsgBox, An exception was thrown!`nSpecifically: %e%
+		}
 
 Return
 }
