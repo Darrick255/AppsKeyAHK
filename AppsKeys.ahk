@@ -384,93 +384,23 @@ return
 
 
 ;Paste And move Forward one
-; controlcarregex := "({F1.{0,5}?}|{F2.{0,5}?}|{F3.{0,5}?}|{F4.{0,5}?}|{F5.{0,5}?}|{F6.{0,5}?}|{F7.{0,5}?}|{F8.{0,5}?}|{F9.{0,5}?}|{F10.{0,5}?}|{F11.{0,5}?}|{F12.{0,5}?}|{F13.{0,5}?}|{F14.{0,5}?}|{F15.{0,5}?}|{F16.{0,5}?}|{F17.{0,5}?}|{F18.{0,5}?}|{F19.{0,5}?}|{F20.{0,5}?}|{F21.{0,5}?}|{F22.{0,5}?}|{F23.{0,5}?}|{F24.{0,5}?}|{!.{0,5}?}|{#.{0,5}?}|{+.{0,5}?}|{^.{0,5}?}|{{.{0,5}?}|{}.{0,5}?}|{Enter.{0,5}?}|{Escape.{0,5}?}|{Space.{0,5}?}|{Tab.{0,5}?}|{Backspace.{0,5}?}|{Delete.{0,5}?}|{Insert.{0,5}?}|{Up.{0,5}?}|{Down.{0,5}?}|{Left.{0,5}?}|{Right.{0,5}?}|{Home.{0,5}?}|{End.{0,5}?}|{PgUp.{0,5}?}|{PgDn.{0,5}?}|{CapsLock.{0,5}?}|{ScrollLock.{0,5}?}|{NumLock.{0,5}?}|{Control.{0,5}?}|{LControl.{0,5}?}|{RControl.{0,5}?}|{Control Down.{0,5}?}|{Alt.{0,5}?}|{LAlt.{0,5}?}|{RAlt.{0,5}?}|{Alt Down.{0,5}?}|{Shift.{0,5}?}|{LShift.{0,5}?}|{RShift.{0,5}?}|{Shift Down.{0,5}?}|{LWin.{0,5}?}|{RWin.{0,5}?}|{LWin Down.{0,5}?}|{RWin Down.{0,5}?}|{AppsKey.{0,5}?}|{Sleep.{0,5}?}|{ASC nnnnn.{0,5}?}|{U+nnnn.{0,5}?}|{vkXX.{0,5}?}|{scYYY.{0,5}?}|{vkXXscYYY.{0,5}?}|{Numpad0.{0,5}?}|{NumpadDot.{0,5}?}|{NumpadEnter.{0,5}?}|{NumpadMult.{0,5}?}|{NumpadDiv.{0,5}?}|{NumpadAdd.{0,5}?}|{NumpadSub.{0,5}?}|{NumpadDel.{0,5}?}|{NumpadIns.{0,5}?}|{NumpadClear.{0,5}?}|{NumpadUp.{0,5}?}|{NumpadDown.{0,5}?}|{NumpadLeft.{0,5}?}|{NumpadRight.{0,5}?}|{NumpadHome.{0,5}?}|{NumpadEnd.{0,5}?}|{NumpadPgUp.{0,5}?}|{NumpadPgDn.{0,5}?}|{Browser_Back.{0,5}?}|{Browser_Forward.{0,5}?}|{Browser_Refresh.{0,5}?}|{Browser_Stop.{0,5}?}|{Browser_Search.{0,5}?}|{Browser_Favorites.{0,5}?}|{Browser_Home.{0,5}?}|{Volume_Mute.{0,5}?}|{Volume_Down.{0,5}?}|{Volume_Up.{0,5}?}|{Media_Next.{0,5}?}|{Media_Prev.{0,5}?}|{Media_Stop.{0,5}?}|{Media_Play_Pause.{0,5}?}|{Launch_Mail.{0,5}?}|{Launch_Media.{0,5}?}|{Launch_App1.{0,5}?}|{Launch_App2.{0,5}?}|{PrintScreen.{0,5}?}|{CtrlBreak.{0,5}?}|{Pause.{0,5}?}|{Click [Options].{0,5}?}|{WheelDown.{0,5}?}|{Blind.{0,5}?}|{Blind.{0,5}?}|{Blind.{0,5}?}|{Raw})"
 F2 Up::
 	IgnoreClipboardChange := True
 	controlcarregex :="((\{Enter.{0,5}?\})|(\{Escape.{0,5}?\})|(\{Space.{0,5}?\})|(\{Tab.{0,5}?\})|(\{Backspace.{0,5}?\})|(\{Delete.{0,5}?\})|(\{Insert.{0,5}?\})|(\{Up.{0,5}?\})|(\{Down.{0,5}?\})|(\{Left.{0,5}?\})|(\{Right.{0,5}?\})|(\{Home.{0,5}?\})|(\{End.{0,5}?\})|(\{PgUp.{0,5}?\})|(\{PgDn.{0,5}?\})|(\{enter.{0,5}?\})|(\{escape.{0,5}?\})|(\{space.{0,5}?\})|(\{tab.{0,5}?\})|(\{backspace.{0,5}?\})|(\{delete.{0,5}?\})|(\{insert.{0,5}?\})|(\{up.{0,5}?\})|(\{down.{0,5}?\})|(\{left.{0,5}?\})|(\{right.{0,5}?\})|(\{home.{0,5}?\})|(\{end.{0,5}?\})|(\{pgup.{0,5}?\})|(\{pgdn.{0,5}?\})|(\{\})|(\{.?\}))"
 	if (IgnoreClipboardChange = True)
 	{
-
-Loop, 0
-{
-; findclick(find, click, timeout=2000, clickbuffer=1)
-; waitfound(text, timeout=2000)
-; waitclick(text, timeout=2000, clickbuffer=1)
-		click, middle, 239, 431
-		sleep repeatTimer*2
-		SendInputSlow(controlcarregex, repeatTimer, repeatTimer, "^{tab}")	
-		waitfound("|<Resolution>*161$53.0000E0001w000U2802800104004FttmFSXZsYIIIWF9gy8QMd4WVFYTilG952X4U3WYG+56BV558YGOABtlmDCbYM", 8000)
-		sleep repeatTimer
-		waitfound("|<Resolution>*161$53.0000E0001w000U2802800104004FttmFSXZsYIIIWF9gy8QMd4WVFYTilG952X4U3WYG+56BV558YGOABtlmDCbYM", 8000)
-		sleep repeatTimer
-		waitclick("|<edit>*148$19.00001000Z00EUttQUYcTWI0F+44Z1nmM001zzyU", 5000)
-		sleep repeatTimer
-		waitfound("|<editoricon>*159$14.Dy3zU301U0M060300l4AP63U0vzPzoM", 5000)
-		MouseMove, 0, 50 , 0, R
-		click
-		sleep repeatTimer
-		IgnoreClipboardChange := True
-		sleep repeatTimer
-		;get the text to put into resolution
-		WinGetTitle, CurrentTitle, A
-		TicketTitle = DOMO`: Ticket#`:
-		If (InStr(CurrentTitle, TicketTitle, 0,1) and IgnoreClipboardChange)
+		Clipboard = %clipboard%
+		Clipboard := regexreplace(Clipboard, "\r\n?|\n\r?", "`n")
+		SendInputSlow(controlcarregex, repeatTimer, repeatTimer, clipboard)
+		if clipindex < %maxindex%
 		{
-			Send,{Shift Up}{Ctrl Up}
-			Send, {Tab}{Ctrl Down}a{Ctrl Up}
-			GetText(TempText)
-			Send, {Ctrl Down}{Shift Down}{home}{Shift Up}{Ctrl Up}
-			ClientID := SubStr(Temptext, inStr(TempText, "Client Id") + 9, inStr(TempText, "Client Type") - inStr(TempText, "Client Id") - 9)
-			ClientFname := SubStr(Temptext, inStr(TempText, "First Name") + 10, inStr(TempText, "Last Name") - inStr(TempText, "First Name") - 10)
-			ClientLname := SubStr(Temptext, inStr(TempText, "Last Name") + 10, inStr(TempText, "Payroll Status") - inStr(TempText, "Last Name") - 10)
-			ClientFname := st_setCase(ClientFname, "t")
-			ClientLname := st_setCase(ClientLname, "t")
-			; TempText := ClientID "- " ClientFname " " ClientLname " "
-			TempText := ClientID "- " ClientFname " " ClientLname " has been created in maximo"
-			StringReplace,TempText,TempText,`n,,A
-			StringReplace,TempText,TempText,`r,,A
-			IgnoreClipboardChange := False
-			if(IgnoreClipboardChange = False and StrLen(TempText)>5)
-				clipboard := TempText
-			Send, +{tab}
-			sleep repeatTimer
-			Send, ^{a}
-			sleep repeatTimer
-			Send, ^{v}
+			clipindex += 1
 		}
+		thisclip := clipvar%clipindex%
+		clipboard := thisclip
+		tooltip %clipindex% - %clipboard%
+		SetTimer, ReSetToolTip, 1000
 		sleep repeatTimer
-		Send, {PgDn}
-		sleep repeatTimer*2
-		waitclick("|<Okaybutton>*183$33.Tzzzzo00001U0000A00001U0000A0D301U36M0A0kH01U43NUA0UPE1U43Q0A0UPk1U62O0A0MnM1U1sNUA00001U0000A00001U0000A00001Tzzzzo", 5000)
-		sleep repeatTimer
-		Send, {home}
-		sleep repeatTimer
-		waitfound("|<actions>*152$62.63zzswMXs01lUAAlb9U00wE33ANmM0zBA0kn2Kbk7aP0AAkYsy1tyk33ANC1UAMa0knaFUM3AAyASD4Nw02",5000)
-		sleep repeatTimer
-		waitclick("|<close>*130$29.wUQDT514UU2451048/Xk8EEo0EUUcWUW1Ftwswy",5000)
-		sleep repeatTimer
-		waitclick("|<closed>*155$48.VTvzzzzzTTvzzzzzD4MB3zzzXT/BTzzzxQ/B7zzzxP/Bvzzz348V7zzzzzzzzzzzzzzzzzzzzzzzzzzzkNy3kE43X9wFaFwF7dss7FwM7tss1lwM7tssUEAM7tsss1wM7dssS1wMX9wF6FwFkM63Uk43U",5000)
-		Send ^{w}
-		sleep repeatTimer
-		Send {F5}
-		tooltip done! looping
-		sleep repeatTimer*6
-		tooltip
-
-} ;end loop
-
-		; clipboard = %clipboard%
-		; Clipboard := regexreplace(Clipboard, "\r\n?|\n\r?", "`n")
-		; SendInputSlow(controlcarregex, repeatTimer, repeatTimer, clipboard)
-		; if clipindex < %maxindex%
-		; {
-		; 	clipindex += 1
-		; }
-		; thisclip := clipvar%clipindex%
-		; clipboard := thisclip
-		; tooltip %clipindex% - %clipboard%
-		; SetTimer, ReSetToolTip, 1000
-		; sleep repeatTimer
 	}
 	IgnoreClipboardChange := False
 Return
