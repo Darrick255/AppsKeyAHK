@@ -266,7 +266,7 @@ return
 
 ;beggining of clipboard
 ; Clears the history by resetting the indices
-^+NumpadClear::
+;^+NumpadClear::
 ^+Numpad5::
 ^+5::
 	tooltip clipboard history cleared
@@ -290,6 +290,32 @@ Return
 		clipboard := thisclip
 		sleep 50
 		tooltip %clipindex% - %clipboard%
+		SetTimer, ReSetToolTip, 1000
+	}
+	IgnoreClipboardChange := False
+Return
+
+^+f::
+	IgnoreClipboardChange := True
+	if (clipindex >= 1 and IgnoreClipboardChange = True and MaxINdex >=1)
+	{
+		
+		indexDiff := MaxIndex - clipindex
+		;msgbox, indexDiff := MaxIndex - clipindex is %indexDiff% := %MaxIndex% - %clipindex%
+		Loop %indexDiff%
+		{
+			thisClipVal := clipindex + A_Index - 1
+			nextClipVal := clipindex + A_Index 
+			clipvar%thisClipVal% := clipvar%nextClipVal%
+			; msgbox, thisClipVal=%thisClipVal% and nextClipVal = %nextClipVal%
+			;sleep 500
+		}
+		
+		clipvar%MaxIndex% :=
+		MaxIndex -= 1
+		clipindex -= 1
+
+		tooltip, deleted %clipboard%
 		SetTimer, ReSetToolTip, 1000
 	}
 	IgnoreClipboardChange := False
@@ -384,7 +410,7 @@ return
 
 
 ;Paste And move Forward one
-F2 Up::
+appskey & F2 Up::
 	IgnoreClipboardChange := True
 	controlcarregex :="((\{Enter.{0,5}?\})|(\{Escape.{0,5}?\})|(\{Space.{0,5}?\})|(\{Tab.{0,5}?\})|(\{Backspace.{0,5}?\})|(\{Delete.{0,5}?\})|(\{Insert.{0,5}?\})|(\{Up.{0,5}?\})|(\{Down.{0,5}?\})|(\{Left.{0,5}?\})|(\{Right.{0,5}?\})|(\{Home.{0,5}?\})|(\{End.{0,5}?\})|(\{PgUp.{0,5}?\})|(\{PgDn.{0,5}?\})|(\{enter.{0,5}?\})|(\{escape.{0,5}?\})|(\{space.{0,5}?\})|(\{tab.{0,5}?\})|(\{backspace.{0,5}?\})|(\{delete.{0,5}?\})|(\{insert.{0,5}?\})|(\{up.{0,5}?\})|(\{down.{0,5}?\})|(\{left.{0,5}?\})|(\{right.{0,5}?\})|(\{home.{0,5}?\})|(\{end.{0,5}?\})|(\{pgup.{0,5}?\})|(\{pgdn.{0,5}?\})|(\{\})|(\{.?\}))"
 	if (IgnoreClipboardChange = True)
@@ -472,14 +498,14 @@ Return
 Return
 
 
-^+o:: ; Ctrl+Shift+o
-controlcarregex :="((\{Enter.{0,5}?\})|(\{Escape.{0,5}?\})|(\{Space.{0,5}?\})|(\{Tab.{0,5}?\})|(\{Backspace.{0,5}?\})|(\{Delete.{0,5}?\})|(\{Insert.{0,5}?\})|(\{Up.{0,5}?\})|(\{Down.{0,5}?\})|(\{Left.{0,5}?\})|(\{Right.{0,5}?\})|(\{Home.{0,5}?\})|(\{End.{0,5}?\})|(\{PgUp.{0,5}?\})|(\{PgDn.{0,5}?\})|(\{enter.{0,5}?\})|(\{escape.{0,5}?\})|(\{space.{0,5}?\})|(\{tab.{0,5}?\})|(\{backspace.{0,5}?\})|(\{delete.{0,5}?\})|(\{insert.{0,5}?\})|(\{up.{0,5}?\})|(\{down.{0,5}?\})|(\{left.{0,5}?\})|(\{right.{0,5}?\})|(\{home.{0,5}?\})|(\{end.{0,5}?\})|(\{pgup.{0,5}?\})|(\{pgdn.{0,5}?\})|(\{\}))"
-msgbox %  "the value is: " . controlcarregex
-  p_string = {Tab 4}_CustomerUsername{Tab}_Contac{}tNumber{Tab 2}_Name _Surname{Tab}_CustomerNumber{Tab}^a_Address1{Enter}_City{Enter}_State _Postcode
-  p_delimiter := controlcarregex
-    p_string_unique := RegExReplace(p_string, p_delimiter, "$1§")
-  MsgBox, %p_string%`n`n%p_string_unique%
-return
+; ^+o:: ; Ctrl+Shift+o
+; controlcarregex :="((\{Enter.{0,5}?\})|(\{Escape.{0,5}?\})|(\{Space.{0,5}?\})|(\{Tab.{0,5}?\})|(\{Backspace.{0,5}?\})|(\{Delete.{0,5}?\})|(\{Insert.{0,5}?\})|(\{Up.{0,5}?\})|(\{Down.{0,5}?\})|(\{Left.{0,5}?\})|(\{Right.{0,5}?\})|(\{Home.{0,5}?\})|(\{End.{0,5}?\})|(\{PgUp.{0,5}?\})|(\{PgDn.{0,5}?\})|(\{enter.{0,5}?\})|(\{escape.{0,5}?\})|(\{space.{0,5}?\})|(\{tab.{0,5}?\})|(\{backspace.{0,5}?\})|(\{delete.{0,5}?\})|(\{insert.{0,5}?\})|(\{up.{0,5}?\})|(\{down.{0,5}?\})|(\{left.{0,5}?\})|(\{right.{0,5}?\})|(\{home.{0,5}?\})|(\{end.{0,5}?\})|(\{pgup.{0,5}?\})|(\{pgdn.{0,5}?\})|(\{\}))"
+; msgbox %  "the value is: " . controlcarregex
+;   p_string = {Tab 4}_CustomerUsername{Tab}_Contac{}tNumber{Tab 2}_Name _Surname{Tab}_CustomerNumber{Tab}^a_Address1{Enter}_City{Enter}_State _Postcode
+;   p_delimiter := controlcarregex
+;     p_string_unique := RegExReplace(p_string, p_delimiter, "$1§")
+;   MsgBox, %p_string%`n`n%p_string_unique%
+; return
 
 
 SendInputSlow(p_delimiter, p_sleep, p_initsleep, p_string)
@@ -1000,6 +1026,23 @@ CCsetVars:
 	CCAppIconAll := CCIconIsCasting . CCIconNotCasting . CCIconError
 	CC1ClickAll := CCCastNewTab . CCCastToDevice . CCCastDiffTab
 return
+appskey & h::
+	tooltip, rUNNING SCRIPT H;;; 
+	SetTimer, ReSetToolTip, 5000
+	Sqoutquery:="|<sqout>*165$64.w0004000002M000E0000087XWPUwaSHCsmP9Y6GN9BYv94aEN9jorlcYGN14akHMamP9Y6HN9BjlssyMDDbbnU0U00040000020000E0002|<sqout unselected>*189$61.S000800000FU0040000083naL3mPm9rWP/939BB54R55YV4byWy2WWmEWHkFEVHNP8N9dhgz7b7a7brXnU0E000E00000800080002"
+	waitclick(Sqoutquery)
+	sleep repeatTimer*4
+	Checkboxicon:="|<checkboc>*188$30.000300002UTz02EU0U2sU0U3wU0U3yU0U3zU0U3zU0U3yU0U3wU0U3sU0U3kU0U3UU0U30Tz000U"
+	waitclick(Checkboxicon,3000,,-13)
+	IsErrorTypeService:="|<service Request>*160$74.dsyT8+77s3wz+F84+2W900Vc2c212E90E08O01kyT4GE7s3wzE384kYY100W800G14+91E08G024UEUW8Y024U0SDoAEVly0Ujk000000000000000000007w008"
+	DetailsIconPage:="|<pageicon>*184$18.00A00QzzzU1TU3SU6wUAsUNsUncUb8V68VA8Xs8XU8U08U08U3sU2MU2kU3Uzz0U"
+	findclick(IsErrorTypeService,DetailsIconPage)
+	XmlIdentifier:="|<XmlIdentifier>*168$84.0040001000+43p0040000000+A2JaxY8bCt7D0+I0EIao4ccZ9dDU4488YI5Dcl8d00448MYI588B8dDU40EIYI38cZ9d0042EWYI278t79004HkU"
+	waitclick(XmlIdentifier,,repeatTimer*2)
+	sleep repeatTimer
+	send, ^a^c	
+return
+
 
 AppsKey & S::
 	IfWinNotActive, ahk_exe chrome.exe
@@ -1039,7 +1082,7 @@ AppsKey & C::
 	}
 return
 
-waitclick(text, timeout=2000, clickbuffer=1)
+waitclick(text, timeout=2000, clickbuffer=1,rx=0,ry=0)
 {
 	start := A_TickCount
 	while (A_TickCount-start <= timeout)
@@ -1049,16 +1092,16 @@ waitclick(text, timeout=2000, clickbuffer=1)
 		{
 			CoordMode, Mouse
 			X:=ok.1.1, Y:=ok.1.2, W:=ok.1.3, H:=ok.1.4, Comment:=ok.1.5
-			MouseMove, X+W//2, Y+H//2
+			MouseMove, (X+W//2)+rx, (Y+H//2)+ry
 			sleep clickbuffer
 			MouseClick
 			break
 		}
 	}
-	return
+	return false
 }
 
-waitfound(text, timeout=2000)
+waitfound(text, timeout=2000,rx=0,ry=0)
 {
 	start := A_TickCount
 	while (A_TickCount-start <= timeout)
@@ -1068,7 +1111,7 @@ waitfound(text, timeout=2000)
 		{
 			CoordMode, Mouse
 			X:=ok.1.1, Y:=ok.1.2, W:=ok.1.3, H:=ok.1.4, Comment:=ok.1.5
-			MouseMove, X+W//2, Y+H//2
+			MouseMove, (X+W//2)+rx, (Y+H//2)+ry
 			break
 		}
 	}
@@ -2145,7 +2188,7 @@ Tail(k,file) {  ; Return the last k lines of file
 ;Menu, Tray, Icon, % A_WinDir "\system32\netshell.dll", 86 ; Shows a world icon in the system tray
 
 
-^+!u::
+appskey & y::
 	nTime := A_TickCount
 	sURL := GetActiveBrowserURL()
 	WinGetClass, sClass, A
