@@ -2,3 +2,5 @@
 .history/
 .vscode/
 bin/
+ZEBRAPRINTER.printlabel2.sql
+WorkSpecific.ahk

@@ -127,13 +127,6 @@ Menu Case, Add, &8 Remove Duplicates, CCase
 Menu Case, Add, 
 ; Menu Case, Add, Clipboard by line, CCase
 
-GroupAdd All
-Menu WwPass, Add, &PST MST OML|CHA|CFI|FLK|PIR|WLK|WLP, WwPassCalc
-Menu WwPass, Add, &MDT BRL|EDS|HPF|HWP|HIP|MFP|Marten River|LVL|SLP|SUN, WwPassCalc
-Menu WwPass, Add, &CDT US Mills, WwPassCalc
-Menu WwPass, Add, &EDT US Mills, WwPassCalc
-
-
 
 
 
@@ -181,9 +174,6 @@ Gosub CCsetVars
 IgnoreClipboardChange := False
 ReadIni("C:\tmp\AppsKeyAHK\AppsKeySettings.ini")
 repeatTimer:=1000
-
-
-
 #Include WorkSpecific.ahk
 Return ;end of auto execute
 
@@ -272,13 +262,7 @@ AppsKey & p::
 	SetTimer, ReSetToolTip, 5000
 return 
 
-#IfWinActive Regex Tester
-!c::
-    Gui Submit, NoHide
-    ClipBoard := (TabSelection = "RegExMatch") ? mNeedle : rNeedle
-    MsgBox, 64, RegEx Copied, %Clipboard% has been copied to the Clipboard, 3
-return
-#IfWinActive
+
 
 ;beggining of clipboard
 ; Clears the history by resetting the indices
@@ -306,15 +290,8 @@ Return
 		clipboard := thisclip
 		tooltiptext := SubStr(clipboard, 1, 1500)
 		sleep 50
-		if DllCall("IsClipboardFormatAvailable", "Uint", 2) 	;2:CF_BITMAP
-		{
-			tooltip %clipindex% - is a picture
-			SetTimer, ReSetToolTip, % repeatTimer ;SetTimer, ReSetToolTip, 1000
-
-		} else  {
-			tooltip %clipindex% - %tooltiptext%
-			SetTimer, ReSetToolTip, % repeatTimer 
-			} ;SetTimer, ReSetToolTip, 1000
+		tooltip %clipindex% - %tooltiptext%
+		SetTimer, ReSetToolTip, % repeatTimer ;SetTimer, ReSetToolTip, 1000
 	}
 	IgnoreClipboardChange := False
 Return
@@ -356,15 +333,8 @@ Return
 		tooltiptext := SubStr(clipboard, 1, 1500)
 		;  if(CurrentClipType==1)
 		;  {
-		if DllCall("IsClipboardFormatAvailable", "Uint", 2) 	;2:CF_BITMAP
-		{
-			tooltip %clipindex% - is a picture
-			SetTimer, ReSetToolTip, % repeatTimer ;SetTimer, ReSetToolTip, 1000
-
-		} else  {
 			tooltip %clipindex% - %tooltiptext%
-			SetTimer, ReSetToolTip, % repeatTimer 
-		} ;SetTimer, ReSetToolTip, 1000
+			SetTimer, ReSetToolTip, % repeatTimer ;SetTimer, ReSetToolTip, 1000
 		;  } else if (CurrentClipType==2)
 		;  {
 		;  	CoordMode, Mouse, Screen
@@ -378,11 +348,7 @@ Return
 	IgnoreClipboardChange := False
 Return
 
-^+a::
-;select all alternative to ctrl+A
-	;msgbox,testing select all
-	send ^{Home}^+{End}^{a}
-return
+
 
 ;Paste And move Forward one
 ^+E::
@@ -855,48 +821,30 @@ AppsKey & x::
 	 DllCall("PowrProf\SetSuspendState", "int", 0, "int", 0, "int", 0)
 Return
 
-AppsKey & =::
-	 Menu WwPass, Show
-Return
-
-AppsKey & -::
-	FormatTime, hourPass ,,H
-	FormatTime, dayPass,,d
-	FormatTime, monthPass,,M
-	FormatTime, yearPass,,y
-	clipboard:= ((hourPass)*1000) + (dayPass*100) + (monthPass*10) + (yearPass)
-	; SendInputSlow("(\{\})", repeatTimer, repeatTimer, clipboard)
-Return
-
-
 AppsKey & /::
 	; RegEx Replace
-
 	If GetKeyState("shift")
 	{
+		TempText := SafeInput("Enter Pattern", "RegEx Pattern:", "(.*?)()(.*?)()(.*?)()(.*?)")
+		If ErrorLevel
+			Return
+		Temp2 := SafeInput("Enter Replacement", "Replacement:", "$1$3$5$7")
+		If ErrorLevel
+			Return
+	}
+	else{
 		TempText := SafeInput("Enter Pattern", "RegEx Pattern:", REPatern)
 		If ErrorLevel
 			Return
 		Temp2 := SafeInput("Enter Replacement", "Replacement:", REReplacement)
 		If ErrorLevel
 			Return
-		REPatern := TempText
-		REReplacement := Temp2
-		GetText(TempText)
-		TempText := RegExReplace(TempText, REPatern, REReplacement)
-		PutText(TempText)
 	}
-	else{
-		GetText(TempText)
-		gosub MakeGui
-		gosub UpdateMatch
-		gosub UpdateReplace
-		GuiControl,,rHaystack, %TempText%
-		GuiControl,,mHaystack, %TempText%
-		GuiControl, Focus, rNeedle
-		Gui Regex:Show, , RegEx Tester
-	}
-
+	REPatern := TempText
+	REReplacement := Temp2
+	GetText(TempText)
+	TempText := RegExReplace(TempText, REPatern, REReplacement)
+	PutText(TempText)
 Return
 
 AppsKey & ,::
@@ -1205,135 +1153,6 @@ findclick(find, click, timeout=2000, clickbuffer=1)
 }
 ; End Chromecast Stuff
 ; =======================================================================================
-
-; regex replace stuff
-; ==============================================================
-
-;; This is called any time any of the edit boxes on the RegExMatch tab are changed.
-UpdateMatch:
-	Gui, Regex:Default
-    Gui Submit, NoHide
-
-    if not IsInteger(mStartPos) {
-        mStartPos := 1
-        Gui Font, cRed
-        GuiControl Font, mStartPos
-    }
-    else {
-        Gui Font, cDefault
-        GuiControl Font, mStartPos
-    }
-
-    ; Set Needle to return an object
-    mNeedle := RegExReplace(mNeedle, "^(\w*)\)", "O$1)", cnt)
-    if (! cnt) {
-        mNeedle := "O)" mNeedle
-    }
-
-    FoundPos := RegExMatch(mHaystack, mNeedle, Match, mStartPos)
-    if (ErrorLevel) {
-        Gui Font, cRed
-        GuiControl Font, mNeedle
-    }
-    else {
-        Gui Font, cDefault
-        GuiControl Font, mNeedle
-    }
-
-    ResultText := "FoundPos: " FoundPos "`n"
-    ResultText .= "Match: " Match.Value() "`n"
-    Loop % Match.Count() {
-        ResultText .= "Match["
-        ResultText .= (Match.Name[A_Index] = "")
-                    ? A_Index
-                    :  Match.Name[A_Index]
-        ResultText .= "]: " Match[A_Index] "`n"
-    }
-    GuiControl, , mResult, %ResultText%
-return
-         ;;AddedForRegex
-;; This is called any time any of the edit boxes on the RegExReplace tab are changed.
-UpdateReplace:
-	Gui, Regex:Default
-    Gui Submit, NoHide
-
-    if not IsInteger(rStartPos) {
-        rStartPos := 1
-        Gui Font, cRed
-        GuiControl Font, rStartPos
-    }
-    else {
-        Gui Font, cDefault
-        GuiControl Font, rStartPos
-    }
-
-    if not IsInteger(rLimit) {
-        rLimit := -1
-        Gui Font, cRed
-        GuiControl Font, rLimit
-    }
-    else {
-        Gui Font, cDefault
-        GuiControl Font, rLimit
-    }
-
-    NewStr := RegExReplace(rHaystack, rNeedle, rReplacement, rCount, rLimit, rStartPos)
-    if (ErrorLevel) {
-        Gui Font, cRed
-        GuiControl Font, rNeedle
-    }
-    else {
-        Gui Font, cDefault
-        GuiControl Font, rNeedle
-    }
-
-    ResultText := "Count: " rCount "`n"
-    ResultText .= "NewStr: `n" NewStr "`n"
-
-    GuiControl, , rResult, %ResultText%
-return
-
-MakeGui:
-    Gui Regex:New
-	Gui, Regex:Default
-    Gui Font, s10, Consolas         ;AddedFor
-    Gui Add, Tab2, r25 w400 vTabSelection, RegExReplace|RegExMatch
-
-    Gui Tab, RegExReplace
-        Gui Add, Text, , Text to be searched:
-        Gui Add, Edit, r10 w370 vrHaystack gUpdateReplace
-        Gui Add, Text, w275 Section, Regular Expression:
-        Gui Add, Edit, r2 w275 vrNeedle gUpdateReplace 
-        Gui Add, Text, , Replacement Text:
-        Gui Add, Edit, r2 w275 vrReplacement gUpdatereplace 
-        Gui Add, Text, , Results:
-        Gui Add, Edit, r12 w370 +readonly -TabStop vrResult
-        Gui Add, Text, ys xs+290 Section, Start: (1)
-        Gui Add, Edit, r1 w75 vrStartPos gUpdateReplace, 1
-        Gui Add, Text, xs y+35 , Limit: (-1)
-        Gui Add, Edit, r1 w75 vrLimit gUpdateReplace, -1
-Gui Tab, RegExMatch
-        Gui Add, Text, , Text to be searched:
-        Gui Add, Edit, r12 w370 vmHaystack gUpdateMatch,
-        Gui Add, Text, Section, Regular Expression:
-        Gui Add, Edit, r2 w275 vmNeedle gUpdateMatch
-        Gui Add, Text, x+15 ys, Start: (1)
-        Gui Add, Edit, r1 w75 vmStartPos gUpdateMatch, 1
-        Gui Add, Text, xs, Results:
-        Gui Add, Edit, r14 w370 +readonly -TabStop vmResult
-
-return
-
-IsInteger(str) {
-    if str is integer
-        return true
-    else
-        return false
-}
-
-; regex replace end
-; ===============================================================
-
 AppsKey & LButton::
 	CoordMode, Mouse  ; Switch to screen/absolute coordinates.
 	MouseGetPos, EWD_MouseStartX, EWD_MouseStartY, EWD_MouseWin
@@ -1509,15 +1328,6 @@ if (IgnoreClipboardChange)
 	IgnoreClipboardChange := False
 Return
 
-WwPassCalc:
-	FormatTime, hourPass ,,H
-	FormatTime, dayPass,,d
-	FormatTime, monthPass,,M
-	FormatTime, yearPass,,y
-	clipboard:= ((hourPass+A_ThisMenuItemPos-1)*1000) + (dayPass*100) + (monthPass*10) + (yearPass)
-	SendInputSlow("(\{\})", repeatTimer, repeatTimer, clipboard)
-; 	;(hour * 1000) + (day * 100) + (month * 10) + parseInt(year.toString().slice(-2))
-Return
 ;******************************************************************************
 ;  https://autohotkey.com/board/topic/35566-rapidhotkey/
 ;  Double tap hotkeys function
